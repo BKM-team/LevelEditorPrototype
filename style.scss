@@ -1,0 +1,32 @@
+html, body {
+  height: 100%;
+}
+
+@mixin size($width, $height) {
+  height: $height;
+  width: $width;
+}
+
+.left-panel {
+  border-right: 1px solid black;
+  float: left;
+  @include size(250px, 100%);
+
+  &:after {
+    content: ' ';
+    clear: both;
+    display: block;
+
+    @include size(0px, 0px);
+  }
+}
+
+.right-panel {
+  height: 100%;
+  overflow: hidden;
+
+  canvas {
+    background-color: blue;
+    @include size(100%, 100%);
+  }
+}
