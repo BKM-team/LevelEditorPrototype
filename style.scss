@@ -10,7 +10,20 @@ html, body {
 .left-panel {
   border-right: 1px solid black;
   float: left;
-  @include size(250px, 100%);
+  @include size(64px, 100%);
+
+  li {
+    cursor: pointer;
+    line-height: 64px;
+    text-align: center;
+    vertical-align: middle;
+
+    &:hover {
+      background-color: rgba(0, 0, 128, 0.3);
+    }
+
+    @include size(64px, 64px);
+  }
 
   &:after {
     content: ' ';
@@ -26,7 +39,6 @@ html, body {
   overflow: hidden;
 
   canvas {
-    background-color: blue;
     @include size(100%, 100%);
   }
 }
