@@ -39,8 +39,4 @@ html, body {
 .right-panel {
   height: 100%;
   overflow: hidden;
-
-  canvas {
-    @include size(100%, 100%);
-  }
 }
