@@ -16,6 +16,8 @@ html, body {
     cursor: pointer;
     line-height: 64px;
     text-align: center;
+    user-select: none;
+    -webkit-user-select: none;
     vertical-align: middle;
 
     &:hover {
