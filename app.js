@@ -37,21 +37,29 @@ $(document).ready(function () {
 
       element.mousedown = function (data) {
         this.dragging = true;
-        //this.data = data;
+        this.data = data;
+        this.sx = this.data.getLocalPosition(this).x;
+        this.sy = this.data.getLocalPosition(this).y;
+
+        this.mousemove = function(data)
+        {
+          if(this.dragging)
+          {
+            var newPosition = this.data.getLocalPosition(this.parent);
+            this.position.x = newPosition.x - this.sx;
+            this.position.y = newPosition.y - this.sy;
+
+            //console.log(this.position.x, this.position.y);
+          }
+
+          console.log('dupda')
+        };
       };
 
       element.mouseup = function () {
         this.dragging = false;
-      };
-
-      element.mousemove = function(data)
-      {
-        if(this.dragging)
-        {
-          var newPosition = data.getLocalPosition(this.parent);
-          this.position.x = newPosition.x;
-          this.position.y = newPosition.y;
-        }
+        this.data = null;
+        delete this.mousemove;
       };
 
       var position = getRelativePosition(ui.helper, $('canvas'));
