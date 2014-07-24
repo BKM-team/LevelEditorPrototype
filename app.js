@@ -28,12 +28,22 @@ $(document).ready(function () {
     tolerance: 'fit',
     drop: function (event, ui) {
       var element = new createjs.Bitmap(ui.helper.get(0));
-      stage.addChild(element);
+      container.addChild(element);
       var position = getRelativePosition(ui.helper, $('canvas'));
       element.x = position.left;
       element.y = position.top;
       stage.update();
+      element.cursor = "pointer";
       ui.helper.remove();
+
+      element.on("mousedown", function(evt) {
+        this.offset = {x:this.x-evt.stageX, y:this.y-evt.stageY};
+      });
+
+      element.on("pressmove", function(evt) {
+        this.x = evt.stageX+ this.offset.x;
+        this.y = evt.stageY+ this.offset.y;
+      });
     }
   });
 
@@ -41,4 +51,10 @@ $(document).ready(function () {
     .attr('height', $('.right-panel').height());
 
   var stage = new createjs.Stage('stage');
+  var container = new createjs.Container();
+  stage.addChild(container);
+  stage.enableMouseOver(10);
+  createjs.Ticker.addEventListener("tick", function () {
+    stage.update();
+  });
 });
