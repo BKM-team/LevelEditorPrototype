@@ -58,9 +58,9 @@ $(document).ready(function () {
     }
   });
 
-  var getRelativePosition = function ($element1, $element2) {
-    var o1 = $element1.offset();
-    var o2 = $element2.offset();
+  $.fn.posRelativeTo = function (element) {
+    var o1 = this.offset();
+    var o2 = element.offset();
     var dx = o1.left - o2.left;
     var dy = o1.top - o2.top;
     return {
@@ -74,7 +74,8 @@ $(document).ready(function () {
     tolerance: 'fit',
     drop: function (event, ui) {
       var element = new EditorElement(ui.helper.eq(0).attr('src'));
-      var position = getRelativePosition(ui.helper, $('canvas'));
+      var position = ui.helper.posRelativeTo($('canvas'));
+
       element.setPosition({
         x: position.left + ui.helper.width()/2,
         y: position.top + ui.helper.height()/2
