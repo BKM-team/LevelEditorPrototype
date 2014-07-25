@@ -47,11 +47,11 @@ $(document).ready(function () {
     this._pixiSprite.position.y = position.y;
   }
 
-  $('li img').draggable({
+  $('li').draggable({
     helper: function () {
-      var $this = $(this);
+      var $img = $(this).find('img');
       var originalImage = $('<img />', {
-        src: $this.data().original
+        src: $img.data().original
       });
 
       return originalImage;
@@ -59,10 +59,10 @@ $(document).ready(function () {
   });
 
   $.fn.posRelativeTo = function (element) {
-    var o1 = this.offset();
-    var o2 = element.offset();
-    var dx = o1.left - o2.left;
-    var dy = o1.top - o2.top;
+    var thisOffset = this.offset();
+    var elementOffset = element.offset();
+    var dx = thisOffset.left - elementOffset.left;
+    var dy = thisOffset.top - elementOffset.top;
     return {
       top: dy,
       left: dx
@@ -70,7 +70,6 @@ $(document).ready(function () {
   };
 
   $('canvas').droppable({
-    accept: 'img',
     tolerance: 'fit',
     drop: function (event, ui) {
       var element = new EditorElement(ui.helper.eq(0).attr('src'));
@@ -85,8 +84,6 @@ $(document).ready(function () {
     }
   });
 
-  $('canvas').attr('width', $('.right-panel').width())
-    .attr('height', $('.right-panel').height());
 
   var stage = new PIXI.Stage();
   var renderer = PIXI.autoDetectRenderer($('.right-panel').width(), $('.right-panel').height(), $('canvas').get(0));
