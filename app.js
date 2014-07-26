@@ -1,3 +1,5 @@
+'use strict';
+
 $(document).ready(function () {
 
   var EditorElement = function (imageSrc) {
@@ -32,21 +34,21 @@ $(document).ready(function () {
   };
 
   EditorElement._mouseDownHandler = function (evt) {
-    this._sprite.offset = {
+    this._dragStartPosition = {
       x: this.x - evt.stageX,
       y: this.y - evt.stageY
     };
   };
 
   EditorElement._mouseMoveHandler = function (evt) {
-    this.x = evt.stageX + this._sprite.offset.x;
-    this.y = evt.stageY + this._sprite.offset.y;
+    this.x = evt.stageX + this._dragStartPosition.x;
+    this.y = evt.stageY + this._dragStartPosition.y;
   };
 
   EditorElement.prototype.setPosition = function (position) {
     this.x = position.x;
     this.y = position.y;
-  }
+  };
 
   $('li').draggable({
     helper: function () {
@@ -75,7 +77,7 @@ $(document).ready(function () {
     tolerance: 'fit',
     drop: function (event, ui) {
       var element = new EditorElement(ui.helper.eq(0).attr('src'));
-      var position = ui.helper.posRelativeTo($('canvas'));
+      var position = ui.helper.posRelativeTo($('#stage'));
 
       element.setPosition({
         x: position.left,
@@ -88,6 +90,11 @@ $(document).ready(function () {
 
   $('canvas').attr('width', $('.right-panel').width())
     .attr('height', $('.right-panel').height());
+
+  $(window).on('resize', function () {
+    $('canvas').attr('width', $('.right-panel').width())
+      .attr('height', $('.right-panel').height());
+  });
 
   var stage = new createjs.Stage('stage');
   stage.enableMouseOver(10);
