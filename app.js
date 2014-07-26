@@ -74,33 +74,20 @@ var Stage = function ($canvas) {
   this._canvas = $canvas;
   this._stage = new createjs.Stage(this._canvas.attr('id'));
   this._stage.enableMouseOver(10);
+
+  this._canvas.droppable({
+    tolerance: 'fit',
+    drop: Stage._dropHandler.bind(this)
+  });
+
+  createjs.Ticker.on('tick', Stage._tickHandler.bind(this));
+  $(window).on('resize', Stage._resizeHandler.bind(this));
 };
 
 Stage.prototype.updateSize = function () {
   var $canvasParent = this._canvas.parent();
   this._canvas.attr('width', $canvasParent.width());
   this._canvas.attr('height', $canvasParent.height());
-};
-
-Stage.prototype.installEvents = function () {
-  this._canvas.droppable({
-    tolerance: 'fit',
-    drop: (function (event, ui) {
-      var element = new EditorElement(ui.helper.eq(0).attr('src'), this);
-      this.addChild(element);
-      var position = ui.helper.posRelativeTo(this._canvas);
-
-      element.setPosition({
-        x: position.left,
-        y: position.top
-      });
-
-      ui.helper.remove();
-    }).bind(this)
-  });
-
-  createjs.Ticker.on('tick', Stage._tickHandler.bind(this));
-  $(window).on('resize', Stage._resizeHandler.bind(this));
 };
 
 Stage.prototype.addChild = function (child) {
@@ -117,6 +104,19 @@ Stage.prototype.getChildIndex = function (child) {
 
 Stage.prototype.setChildIndex = function (child, index) {
   this._stage.setChildIndex(child.getSprite(), index);
+};
+
+Stage._dropHandler = function (event, ui) {
+  var element = new EditorElement(ui.helper.eq(0).attr('src'), this);
+  this.addChild(element);
+  var position = ui.helper.posRelativeTo(this._canvas);
+
+  element.setPosition({
+    x: position.left,
+    y: position.top
+  });
+
+  ui.helper.remove();
 };
 
 Stage._resizeHandler = function () {
@@ -141,7 +141,6 @@ $(document).ready(function () {
   });
 
   var stage = new Stage($('#stage'));
-  stage.installEvents();
   stage.updateSize();
 
   createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
