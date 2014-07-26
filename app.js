@@ -11,12 +11,15 @@ $.fn.posRelativeTo = function (element) {
   };
 };
 
-var EditorElement = function (imageSrc) {
+var EditorElement = function (imageSrc, parentStage) {
   this._sprite = new createjs.Bitmap(imageSrc);
 
   this._sprite.on('mousedown', EditorElement._mouseDownHandler.bind(this));
+  this._sprite.on('pressup', EditorElement._mouseUpHandler.bind(this));
   this._sprite.on('pressmove', EditorElement._mouseMoveHandler.bind(this));
   this._sprite.cursor = 'pointer';
+
+  this._parentStage = parentStage;
 
   Object.defineProperty(this, 'x', EditorElement._xGetSet);
   Object.defineProperty(this, 'y', EditorElement._yGetSet);
@@ -41,6 +44,8 @@ EditorElement._yGetSet = {
 };
 
 EditorElement._mouseDownHandler = function (evt) {
+  this._dragStartZIndex = this._parentStage.getChildIndex(this);
+  this._parentStage.moveChildToTop(this);
   this._dragStartPosition = {
     x: this.x - evt.stageX,
     y: this.y - evt.stageY
@@ -50,6 +55,10 @@ EditorElement._mouseDownHandler = function (evt) {
 EditorElement._mouseMoveHandler = function (evt) {
   this.x = evt.stageX + this._dragStartPosition.x;
   this.y = evt.stageY + this._dragStartPosition.y;
+};
+
+EditorElement._mouseUpHandler = function () {
+  this._parentStage.setChildIndex(this, this._dragStartZIndex);
 };
 
 EditorElement.prototype.setPosition = function (position) {
@@ -77,9 +86,8 @@ Stage.prototype.installEvents = function () {
   this._canvas.droppable({
     tolerance: 'fit',
     drop: (function (event, ui) {
-      var element = new EditorElement(ui.helper.eq(0).attr('src'));
-      this._stage.addChild(element.getSprite());
-
+      var element = new EditorElement(ui.helper.eq(0).attr('src'), this);
+      this.addChild(element);
       var position = ui.helper.posRelativeTo(this._canvas);
 
       element.setPosition({
@@ -93,6 +101,22 @@ Stage.prototype.installEvents = function () {
 
   createjs.Ticker.on('tick', Stage._tickHandler.bind(this));
   $(window).on('resize', Stage._resizeHandler.bind(this));
+};
+
+Stage.prototype.addChild = function (child) {
+  this._stage.addChild(child.getSprite());
+};
+
+Stage.prototype.moveChildToTop = function (child) {
+  this._stage.setChildIndex(child.getSprite(), this._stage.getNumChildren() - 1);
+};
+
+Stage.prototype.getChildIndex = function (child) {
+  return this._stage.getChildIndex(child.getSprite());
+};
+
+Stage.prototype.setChildIndex = function (child, index) {
+  this._stage.setChildIndex(child.getSprite(), index);
 };
 
 Stage._resizeHandler = function () {
