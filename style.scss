@@ -36,6 +36,10 @@ html, body {
   }
 }
 
+img.drag-helper {
+  cursor: pointer;
+}
+
 .right-panel {
   height: 100%;
   overflow: hidden;

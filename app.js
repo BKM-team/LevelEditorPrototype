@@ -1,57 +1,59 @@
 $(document).ready(function () {
 
   var EditorElement = function (imageSrc) {
-    var texture = PIXI.Texture.fromImage(imageSrc);
-    this._pixiSprite = new PIXI.Sprite(texture);
+    this._sprite = new createjs.Bitmap(imageSrc);
 
-    this._pixiSprite.anchor.x = 0.5;
-    this._pixiSprite.anchor.y = 0.5;
-    this._pixiSprite.interactive = true;
-    this._pixiSprite.buttonMode = true;
+    this._sprite.on('mousedown', EditorElement._mouseDownHandler.bind(this));
+    this._sprite.on('pressmove', EditorElement._mouseMoveHandler.bind(this));
+    this._sprite.cursor = 'pointer';
 
-    this._pixiSprite.mousedown = EditorElement._mouseDownHandler.bind(this);
-    this._pixiSprite.mouseup = EditorElement._mouseUpHandler.bind(this);
+    Object.defineProperty(this, 'x', EditorElement._xGetSet);
+    Object.defineProperty(this, 'y', EditorElement._yGetSet);
 
-    stage.addChild(this._pixiSprite);
+    stage.addChild(this._sprite);
   };
 
-  EditorElement._mouseDownHandler = function (data) {
-    this._dragging = true;
-    this._pixiSprite.data = data;
-
-    var localPosition = this._pixiSprite.data.getLocalPosition(this._pixiSprite);
-
-    this._sx = localPosition.x;
-    this._sy = localPosition.y;
-
-    this._pixiSprite.mousemove = EditorElement._mouseMoveHandler.bind(this);
-  };
-
-  EditorElement._mouseMoveHandler = function () {
-    if(this._dragging)
-    {
-      var newPosition = this._pixiSprite.data.getLocalPosition(this._pixiSprite.parent);
-      this._pixiSprite.position.x = newPosition.x - this._sx;
-      this._pixiSprite.position.y = newPosition.y - this._sy;
+  EditorElement._xGetSet = {
+    get: function () {
+      return this._sprite.x;
+    },
+    set: function (val) {
+      this._sprite.x = val;
     }
   };
 
-  EditorElement._mouseUpHandler = function () {
-    this._dragging = false;
-    this._pixiSprite.data = null;
-    delete this._pixiSprite.mousemove;
+  EditorElement._yGetSet = {
+    get: function () {
+      return this._sprite.y;
+    },
+    set: function (val) {
+      this._sprite.y = val;
+    }
+  };
+
+  EditorElement._mouseDownHandler = function (evt) {
+    this._sprite.offset = {
+      x: this.x - evt.stageX,
+      y: this.y - evt.stageY
+    };
+  };
+
+  EditorElement._mouseMoveHandler = function (evt) {
+    this.x = evt.stageX + this._sprite.offset.x;
+    this.y = evt.stageY + this._sprite.offset.y;
   };
 
   EditorElement.prototype.setPosition = function (position) {
-    this._pixiSprite.position.x = position.x;
-    this._pixiSprite.position.y = position.y;
+    this.x = position.x;
+    this.y = position.y;
   }
 
   $('li').draggable({
     helper: function () {
       var $img = $(this).find('img');
       var originalImage = $('<img />', {
-        src: $img.data().original
+        src: $img.data().original,
+        'class': 'drag-helper'
       });
 
       return originalImage;
@@ -76,22 +78,23 @@ $(document).ready(function () {
       var position = ui.helper.posRelativeTo($('canvas'));
 
       element.setPosition({
-        x: position.left + ui.helper.width()/2,
-        y: position.top + ui.helper.height()/2
+        x: position.left,
+        y: position.top
       });
 
       ui.helper.remove();
     }
   });
 
+  $('canvas').attr('width', $('.right-panel').width())
+    .attr('height', $('.right-panel').height());
 
-  var stage = new PIXI.Stage();
-  var renderer = PIXI.autoDetectRenderer($('.right-panel').width(), $('.right-panel').height(), $('canvas').get(0));
+  var stage = new createjs.Stage('stage');
+  stage.enableMouseOver(10);
 
-  function animate() {
-    requestAnimFrame( animate );
-    renderer.render(stage);
-  }
-
-  requestAnimFrame(animate);
+  createjs.Ticker.on('tick', function () {
+    stage.update();
+  });
+  createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
+  createjs.Ticker.setFPS(60);
 });
