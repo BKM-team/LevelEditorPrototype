@@ -101,8 +101,6 @@ EditorElement._mouseDownLeftButtonHandler = function (evt) {
     x: this.x - evt.stageX,
     y: this.y - evt.stageY
   };
-
-  this._parentStage.moveChildToTop(this);
 };
 
 EditorElement._mouseDownRightButtonHandler = function (evt) {
@@ -117,6 +115,7 @@ EditorElement._mouseMoveHandler = function (evt) {
     this.x = evt.stageX + this._dragging.startPosition.x;
     this.y = evt.stageY + this._dragging.startPosition.y;
     this._sprite.alpha = 0.5;
+    this._parentStage.moveChildToTop(this);
   }
 };
 
