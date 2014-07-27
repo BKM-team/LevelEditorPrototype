@@ -34,16 +34,28 @@ EditorElement._contextMenu = [
     title: 'Move',
     children: [
       {
-        title: 'to top'
+        title: 'to the top',
+        action: function () {
+          this._parentStage.moveChildToTop(this);
+        }
       },
       {
-        title: 'to bottom'
+        title: 'up',
+        action: function () {
+          this._parentStage.moveChildUp(this);
+        }
       },
       {
-        title: 'layer up'
+        title: 'down',
+        action: function () {
+          this._parentStage.moveChildDown(this);
+        }
       },
       {
-        title: 'layer down'
+        title: 'to the bottom',
+        action: function () {
+          this._parentStage.moveChildToBottom(this);
+        }
       }
     ]
   }
@@ -90,6 +102,8 @@ EditorElement._mouseDownLeftButtonHandler = function (evt) {
     y: this.y - evt.stageY
   };
 
+  this._sprite.alpha = 0.5;
+
   this._parentStage.moveChildToTop(this);
 };
 
@@ -97,7 +111,7 @@ EditorElement._mouseDownRightButtonHandler = function (evt) {
   evt.preventDefault();
   evt.stopPropagation();
 
-  this._parentStage.showContextMenu(this._contextMenu, evt);
+  this._parentStage.showContextMenu(this, this._contextMenu, evt);
 };
 
 EditorElement._mouseMoveHandler = function (evt) {
@@ -108,8 +122,11 @@ EditorElement._mouseMoveHandler = function (evt) {
 };
 
 EditorElement._mouseUpHandler = function () {
-  this._dragging.isElementDragged = false;
-  this._parentStage.setChildIndex(this, this._dragging.startZIndex);
+  if(this._dragging.isElementDragged) {
+    this._dragging.isElementDragged = false;
+    this._sprite.alpha = 1;
+    this._parentStage.setChildIndex(this, this._dragging.startZIndex);
+  }
 };
 
 EditorElement.prototype.setPosition = function (position) {
@@ -170,6 +187,20 @@ Stage.prototype.moveChildToTop = function (child) {
   this._stage.setChildIndex(child.getSprite(), this._stage.getNumChildren() - 1);
 };
 
+Stage.prototype.moveChildToBottom = function (child) {
+  this._stage.setChildIndex(child.getSprite(), 0);
+};
+
+Stage.prototype.moveChildUp = function (child) {
+  var actualIndex = this.getChildIndex(child);
+  this.setChildIndex(child, actualIndex + 1);
+};
+
+Stage.prototype.moveChildDown = function (child) {
+  var actualIndex = this.getChildIndex(child);
+  this.setChildIndex(child, actualIndex - 1);
+};
+
 Stage.prototype.getChildIndex = function (child) {
   return this._stage.getChildIndex(child.getSprite());
 };
@@ -178,23 +209,34 @@ Stage.prototype.setChildIndex = function (child, index) {
   this._stage.setChildIndex(child.getSprite(), index);
 };
 
-Stage.prototype.getObjectUnderPoint = function (x, y) {
-  return this._stage.getObjectUnderPoint(x, y);
-};
-
-Stage.prototype.getCanvas = function () {
-  return this._canvas;
-};
-
-Stage.prototype.showContextMenu = function (menuItems, mouseDownEvent) {
+Stage.prototype.showContextMenu = function (editorElement, menuItems, mouseDownEvent) {
   var canvasOffset = this._canvas.offset();
   var position = {
     top: mouseDownEvent.stageY + canvasOffset.top,
     left: mouseDownEvent.stageX + canvasOffset.left
   };
 
+  var boundMenuItems = jQuery.extend(true, [], menuItems),
+    queue = [];
+
+  boundMenuItems.forEach(function (item) {
+    queue.push(item);
+  });
+
+  while(queue.length) {
+    var current;
+    current = queue.shift();
+    if(current.action) {
+      current.action = current.action.bind(editorElement);
+    }
+
+    if(current.children) {
+      queue.push.apply(queue, current.children);
+    }
+  }
+
   this._contextMenuPositioner.css(position);
-  this._contextMenuPositioner.contextmenu('replaceMenu', menuItems);
+  this._contextMenuPositioner.contextmenu('replaceMenu', boundMenuItems);
   setTimeout(function () {
     this._contextMenuPositioner.contextmenu('open', this._contextMenuPositioner);
   }.bind(this), 0);
