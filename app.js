@@ -21,9 +21,33 @@ var EditorElement = function (imageSrc, parentStage) {
 
   this._parentStage = parentStage;
 
+  this._dragging = {};
+
+  this._contextMenu = EditorElement._contextMenu;
+
   Object.defineProperty(this, 'x', EditorElement._xGetSet);
   Object.defineProperty(this, 'y', EditorElement._yGetSet);
 };
+
+EditorElement._contextMenu = [
+  {
+    title: 'Move',
+    children: [
+      {
+        title: 'to top'
+      },
+      {
+        title: 'to bottom'
+      },
+      {
+        title: 'layer up'
+      },
+      {
+        title: 'layer down'
+      }
+    ]
+  }
+];
 
 EditorElement._xGetSet = {
   get: function () {
@@ -44,21 +68,48 @@ EditorElement._yGetSet = {
 };
 
 EditorElement._mouseDownHandler = function (evt) {
-  this._dragStartZIndex = this._parentStage.getChildIndex(this);
-  this._parentStage.moveChildToTop(this);
-  this._dragStartPosition = {
+  var LEFT_BUTTON = 0,
+    RIGHT_BUTTON = 2;
+
+  switch(evt.nativeEvent.button) {
+    case LEFT_BUTTON:
+      return EditorElement._mouseDownLeftButtonHandler.apply(this, arguments);
+      break;
+
+    case RIGHT_BUTTON:
+      return EditorElement._mouseDownRightButtonHandler.apply(this, arguments);
+      break;
+  }
+};
+
+EditorElement._mouseDownLeftButtonHandler = function (evt) {
+  this._dragging.isElementDragged = true;
+  this._dragging.startZIndex = this._parentStage.getChildIndex(this);
+  this._dragging.startPosition = {
     x: this.x - evt.stageX,
     y: this.y - evt.stageY
   };
+
+  this._parentStage.moveChildToTop(this);
+};
+
+EditorElement._mouseDownRightButtonHandler = function (evt) {
+  evt.preventDefault();
+  evt.stopPropagation();
+
+  this._parentStage.showContextMenu(this._contextMenu, evt);
 };
 
 EditorElement._mouseMoveHandler = function (evt) {
-  this.x = evt.stageX + this._dragStartPosition.x;
-  this.y = evt.stageY + this._dragStartPosition.y;
+  if(this._dragging.isElementDragged) {
+    this.x = evt.stageX + this._dragging.startPosition.x;
+    this.y = evt.stageY + this._dragging.startPosition.y;
+  }
 };
 
 EditorElement._mouseUpHandler = function () {
-  this._parentStage.setChildIndex(this, this._dragStartZIndex);
+  this._dragging.isElementDragged = false;
+  this._parentStage.setChildIndex(this, this._dragging.startZIndex);
 };
 
 EditorElement.prototype.setPosition = function (position) {
@@ -72,12 +123,33 @@ EditorElement.prototype.getSprite = function () {
 
 var Stage = function ($canvas) {
   this._canvas = $canvas;
+
+  this._contextMenuPositioner = $('<div />', {
+    'class': 'contextMenuPositioner'
+  }).insertBefore(this._canvas);
+
+  this._canvas
+    .add(this._contextMenuPositioner)
+    .on('contextmenu', function (evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+    });
+
+  this._contextMenuPositioner.contextmenu({
+    menu: []
+  });
+
   this._stage = new createjs.Stage(this._canvas.attr('id'));
   this._stage.enableMouseOver(10);
 
   this._canvas.droppable({
     tolerance: 'fit',
     drop: Stage._dropHandler.bind(this)
+  });
+
+  this._contextMenuPositioner.contextmenu({
+    menu: [],
+    autoTrigger: false
   });
 
   createjs.Ticker.on('tick', Stage._tickHandler.bind(this));
@@ -104,6 +176,29 @@ Stage.prototype.getChildIndex = function (child) {
 
 Stage.prototype.setChildIndex = function (child, index) {
   this._stage.setChildIndex(child.getSprite(), index);
+};
+
+Stage.prototype.getObjectUnderPoint = function (x, y) {
+  return this._stage.getObjectUnderPoint(x, y);
+};
+
+Stage.prototype.getCanvas = function () {
+  return this._canvas;
+};
+
+Stage.prototype.showContextMenu = function (menuItems, mouseDownEvent) {
+  var canvasOffset = this._canvas.offset();
+  var position = {
+    top: mouseDownEvent.stageY + canvasOffset.top,
+    left: mouseDownEvent.stageX + canvasOffset.left
+  };
+
+  this._contextMenuPositioner.css(position);
+  this._contextMenuPositioner.contextmenu('replaceMenu', menuItems);
+  setTimeout(function () {
+    this._contextMenuPositioner.contextmenu('open', this._contextMenuPositioner);
+  }.bind(this), 0);
+
 };
 
 Stage._dropHandler = function (event, ui) {
