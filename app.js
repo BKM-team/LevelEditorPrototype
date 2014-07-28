@@ -150,10 +150,6 @@ var Stage = function ($canvas) {
       evt.stopPropagation();
     });
 
-  this._contextMenuPositioner.contextmenu({
-    menu: []
-  });
-
   this._stage = new createjs.Stage(this._canvas.attr('id'));
   this._stage.enableMouseOver(10);
 
