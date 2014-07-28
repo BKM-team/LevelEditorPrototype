@@ -43,10 +43,10 @@ img.drag-helper {
 .right-panel {
   height: 100%;
   overflow: hidden;
+}
 
-  .contextMenuPositioner {
-    position: absolute;
+.contextMenuPositioner {
+  position: absolute;
 
-    @include size(1px, 1px);
-  }
+  @include size(1px, 1px);
 }
