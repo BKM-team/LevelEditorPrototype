@@ -283,16 +283,53 @@ ContextMenu.prototype._displayMenu = function (boundMenuItems, position) {
 };
 
 $(document).ready(function () {
-  $('li').draggable({
-    helper: function () {
-      var $img = $(this).find('img');
-      var originalImage = $('<img />', {
-        src: $img.data().original,
-        'class': 'drag-helper'
-      });
+  var queue = new createjs.LoadQueue(true);
+  queue.loadManifest('assets.json');
+  var assets = {};
+  queue.on('fileload', function (evt) {
+    var item = evt.item;
 
-      return originalImage;
+    if(item.type !== createjs.LoadQueue.IMAGE) {
+      return;
+    };
+
+    if(item.data && item.data.type === "thumb") {
+      if(!assets[item.data.thumbFor]) {
+        assets[item.data.thumbFor] = {};
+      }
+
+      assets[item.data.thumbFor].thumb = item.src;
+    } else {
+      if(!assets[item.id]) {
+        assets[item.id] = {};
+      }
+
+      assets[item.id].src = item.src;
     }
+  });
+
+  queue.on('complete', function () {
+    var ul = $('ul').eq(0);
+    $.each(assets, function (key, asset) {
+      var li = $('<li />', {
+        html: $('<img />', {
+          src: asset.thumb,
+          'data-original': asset.src
+        })
+      }).appendTo(ul);
+    });
+
+    $('li').draggable({
+      helper: function () {
+        var $img = $(this).find('img');
+        var originalImage = $('<img />', {
+          src: $img.data().original,
+          'class': 'drag-helper'
+        });
+
+        return originalImage;
+      }
+    });
   });
 
   var stage = new Stage($('#stage'));
