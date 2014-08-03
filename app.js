@@ -282,55 +282,71 @@ ContextMenu.prototype._displayMenu = function (boundMenuItems, position) {
   }.bind(this), 0);
 };
 
-$(document).ready(function () {
-  var queue = new createjs.LoadQueue(true);
-  queue.loadManifest('assets.json');
-  var assets = {};
-  queue.on('fileload', function (evt) {
-    var item = evt.item;
-
-    if(item.type !== createjs.LoadQueue.IMAGE) {
-      return;
-    };
-
-    if(item.data && item.data.type === "thumb") {
-      if(!assets[item.data.thumbFor]) {
-        assets[item.data.thumbFor] = {};
+var Editor = {
+  assets: {
+    _loadingQueue: new createjs.LoadQueue(true),
+    _assetsList: {},
+    _appendAssetToList: function (asset) {
+      var key1, key2;
+      if(asset.data && asset.data.type === "thumb") {
+        key1 = asset.data.thumbFor;
+        key2 = "thumb";
+      } else {
+        key1 = asset.id;
+        key2 = "src";
       }
 
-      assets[item.data.thumbFor].thumb = item.src;
-    } else {
-      if(!assets[item.id]) {
-        assets[item.id] = {};
+      if(!this._assetsList[key1]) {
+        this._assetsList[key1] = {};
       }
 
-      assets[item.id].src = item.src;
+      this._assetsList[key1][key2] = asset.src;
+    },
+    _renderLoadedAssets: function () {
+      var ul = $('ul').eq(0);
+      $.each(this._assetsList, function (key, asset) {
+        var li = $('<li />', {
+          html: $('<img />', {
+            src: asset.thumb,
+            'data-original': asset.src
+          })
+        }).appendTo(ul);
+      });
+    },
+    _installEventsOnRenderedAssets: function () {
+      $('li').draggable({
+        helper: function () {
+          var $img = $(this).find('img');
+          var originalImage = $('<img />', {
+            src: $img.data().original,
+            'class': 'drag-helper'
+          });
+
+          return originalImage;
+        }
+      });
+    },
+    loadAssets: function (manifestFile) {
+      this._loadingQueue.loadManifest(manifestFile);
+
+      this._loadingQueue.on('fileload', (function (evt) {
+        var item = evt.item;
+        if(item.type === createjs.LoadQueue.IMAGE) {
+          this._appendAssetToList(item);
+        }
+      }).bind(this));
+
+      this._loadingQueue.on('complete', (function () {
+        this._renderLoadedAssets();
+        this._installEventsOnRenderedAssets();
+        this._loadingQueue.removeAllEventListeners();
+      }).bind(this));
     }
-  });
+  }
+};
 
-  queue.on('complete', function () {
-    var ul = $('ul').eq(0);
-    $.each(assets, function (key, asset) {
-      var li = $('<li />', {
-        html: $('<img />', {
-          src: asset.thumb,
-          'data-original': asset.src
-        })
-      }).appendTo(ul);
-    });
-
-    $('li').draggable({
-      helper: function () {
-        var $img = $(this).find('img');
-        var originalImage = $('<img />', {
-          src: $img.data().original,
-          'class': 'drag-helper'
-        });
-
-        return originalImage;
-      }
-    });
-  });
+$(document).ready(function () {
+  Editor.assets.loadAssets('assets.json');
 
   var stage = new Stage($('#stage'));
   stage.updateSize();
