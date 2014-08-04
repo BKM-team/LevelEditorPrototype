@@ -1,5 +1,6 @@
 'use strict';
 
+var phantom;
 $.fn.posRelativeTo = function (element) {
   var thisOffset = this.offset();
   var elementOffset = element.offset();
@@ -148,10 +149,17 @@ var Stage = function ($canvas) {
 
   this._stage = new createjs.Stage(this._canvas.attr('id'));
   this._stage.enableMouseOver(10);
+  var stage = this._stage;
 
   this._canvas.droppable({
     tolerance: 'fit',
-    drop: Stage._dropHandler.bind(this)
+    drop: Stage._dropHandler.bind(this),
+    over: function (event, ui) {
+      phantom = new createjs.Bitmap(ui.draggable.find('img').attr('data-original'));
+      phantom.alpha = 0.5;
+      stage.addChild(phantom);
+      ui.helper.css('visibility', 'hidden');
+    }
   });
 
   createjs.Ticker.on('tick', Stage._tickHandler.bind(this));
@@ -210,11 +218,12 @@ Stage._dropHandler = function (event, ui) {
   var position = ui.helper.posRelativeTo(this._canvas);
 
   element.setPosition({
-    x: position.left,
-    y: position.top
+    x: position.left - position.left%20,
+    y: position.top - position.top%20
   });
 
   ui.helper.remove();
+  this._stage.removeChild(phantom);
 };
 
 Stage._resizeHandler = function () {
@@ -323,6 +332,19 @@ var Editor = {
           });
 
           return originalImage;
+        },
+        drag: function (events, ui) {
+          console.log(('dupa'));
+          if(phantom) {
+            //var snapTolerance = $(this).draggable('option', 'snapTolerance');
+            //console.log(snapTolerance);
+            var relativePos = ui.helper.posRelativeTo($('#stage'));
+            phantom.x = relativePos.left - relativePos.left%20;
+            phantom.y = relativePos.top - relativePos.top%20;
+            //console.log(ui.position.top - ui.position.top%20, ui.position.left - ui.position.left%20);
+
+          }
+
         }
       });
     },
