@@ -114,7 +114,9 @@ EditorElement._mouseDownRightButtonHandler = function (evt) {
 EditorElement._mouseMoveHandler = function (evt) {
   if(this._dragging.isElementDragged) {
     this.x = evt.stageX + this._dragging.startPosition.x;
+    this.x = this.x - this.x%20;
     this.y = evt.stageY + this._dragging.startPosition.y;
+    this.y = this.y - this.y%20;
     this._sprite.alpha = 0.5;
     this._parentStage.moveChildToTop(this);
   }
@@ -149,16 +151,23 @@ var Stage = function ($canvas) {
 
   this._stage = new createjs.Stage(this._canvas.attr('id'));
   this._stage.enableMouseOver(10);
-  var stage = this._stage;
 
   this._canvas.droppable({
     tolerance: 'fit',
     drop: Stage._dropHandler.bind(this),
     over: function (event, ui) {
-      phantom = new createjs.Bitmap(ui.draggable.find('img').attr('data-original'));
-      phantom.alpha = 0.5;
-      stage.addChild(phantom);
-      ui.helper.css('visibility', 'hidden');
+      ui.helper.css('opacity', '0.5');
+      ui.draggable.on('drag', function (event, ui) {
+        var stagePos = $('#stage').position();
+        var pos = ui.position;
+
+        var left = pos.left - stagePos.left;
+        var top = pos.top - stagePos.top;
+
+        pos.top = top - top%20 + stagePos.top;
+        pos.left = left - left%20 + stagePos.left;
+        ui.helper.position(pos);
+      });
     }
   });
 
@@ -332,19 +341,6 @@ var Editor = {
           });
 
           return originalImage;
-        },
-        drag: function (events, ui) {
-          console.log(('dupa'));
-          if(phantom) {
-            //var snapTolerance = $(this).draggable('option', 'snapTolerance');
-            //console.log(snapTolerance);
-            var relativePos = ui.helper.posRelativeTo($('#stage'));
-            phantom.x = relativePos.left - relativePos.left%20;
-            phantom.y = relativePos.top - relativePos.top%20;
-            //console.log(ui.position.top - ui.position.top%20, ui.position.left - ui.position.left%20);
-
-          }
-
         }
       });
     },
