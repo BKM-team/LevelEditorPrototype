@@ -114,9 +114,8 @@ EditorElement._mouseDownRightButtonHandler = function (evt) {
 EditorElement._mouseMoveHandler = function (evt) {
   if(this._dragging.isElementDragged) {
     this.x = evt.stageX + this._dragging.startPosition.x;
-    this.x = this.x - this.x%20;
     this.y = evt.stageY + this._dragging.startPosition.y;
-    this.y = this.y - this.y%20;
+    this.snapToGrid();
     this._sprite.alpha = 0.5;
     this._parentStage.moveChildToTop(this);
   }
@@ -139,6 +138,14 @@ EditorElement.prototype.getSprite = function () {
   return this._sprite;
 };
 
+EditorElement.prototype.snapToGrid = function () {
+  var gridSize = this._parentStage.getGridSize();
+  this.setPosition({
+    x: this.x - this.x%gridSize,
+    y: this.y - this.y%gridSize
+  });
+};
+
 var Stage = function ($canvas) {
   this._canvas = $canvas;
 
@@ -152,6 +159,8 @@ var Stage = function ($canvas) {
   this._stage = new createjs.Stage(this._canvas.attr('id'));
   this._stage.enableMouseOver(10);
 
+  var that = this;
+
   this._canvas.droppable({
     tolerance: 'fit',
     drop: Stage._dropHandler.bind(this),
@@ -164,8 +173,8 @@ var Stage = function ($canvas) {
         var left = pos.left - stagePos.left;
         var top = pos.top - stagePos.top;
 
-        pos.top = top - top%20 + stagePos.top;
-        pos.left = left - left%20 + stagePos.left;
+        pos.top = top - top%that.getGridSize() + stagePos.top;
+        pos.left = left - left%that.getGridSize() + stagePos.left;
         ui.helper.position(pos);
       });
     }
@@ -221,15 +230,25 @@ Stage.prototype.showContextMenu = function (editorElement, menuItems, mouseDownE
   this._contextMenu.show(editorElement, menuItems, position);
 };
 
+Stage.prototype.setGridSize = function (gridSize) {
+  this._gridSize = gridSize;
+};
+
+Stage.prototype.getGridSize = function () {
+  return this._gridSize;
+};
+
 Stage._dropHandler = function (event, ui) {
   var element = new EditorElement(ui.helper.eq(0).attr('src'), this);
   this.addChild(element);
   var position = ui.helper.posRelativeTo(this._canvas);
 
   element.setPosition({
-    x: position.left - position.left%20,
-    y: position.top - position.top%20
+    x: position.left,
+    y: position.top
   });
+
+  element.snapToGrid();
 
   ui.helper.remove();
   this._stage.removeChild(phantom);
@@ -367,6 +386,7 @@ $(document).ready(function () {
   Editor.assets.loadAssets('assets.json');
 
   var stage = new Stage($('#stage'));
+  stage.setGridSize(20);
   stage.updateSize();
 
   createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
