@@ -319,6 +319,23 @@ ContextMenu.prototype._displayMenu = function (boundMenuItems, position) {
   }.bind(this), 0);
 };
 
+var Grid = function (parentStage) {
+  this._containter = new createjs.Container();
+  this._parentStage = parentStage;
+};
+
+Grid._mouseDownHandler = function () {
+
+};
+
+Grid._mouseMoveHandler = function () {
+
+};
+
+Grid._mouseUpHandler = function () {
+
+};
+
 var Editor = {
   assets: {
     _loadingQueue: new createjs.LoadQueue(true),
@@ -388,6 +405,14 @@ $(document).ready(function () {
   var stage = new Stage($('#stage'));
   stage.setGridSize(20);
   stage.updateSize();
+
+  $('button.settings').on('click', function () {
+    var newGridSize = prompt('TEMPORARY! Set new value for grid:', stage.getGridSize());
+    newGridSize = Number(newGridSize);
+    if(!isNaN(newGridSize)) {
+      stage.setGridSize(newGridSize);
+    }
+  });
 
   createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
   createjs.Ticker.setFPS(60);
