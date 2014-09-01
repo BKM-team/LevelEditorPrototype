@@ -2,7 +2,6 @@
 
 var Stage = function ($canvas) {
   this._canvas = $canvas;
-
   this._canvas.on('contextmenu', function (evt) {
     evt.preventDefault();
     evt.stopPropagation();
@@ -12,6 +11,8 @@ var Stage = function ($canvas) {
 
   this._stage = new createjs.Stage(this._canvas.attr('id'));
   this._stage.enableMouseOver(10);
+
+  this._container = new Container(this._stage);
 
   var that = this;
 
@@ -40,38 +41,43 @@ var Stage = function ($canvas) {
 
 Stage.prototype.updateSize = function () {
   var $canvasParent = this._canvas.parent();
-  this._canvas.attr('width', $canvasParent.width());
-  this._canvas.attr('height', $canvasParent.height());
+  var $canvasParentDimensions = {
+    width: $canvasParent.width(),
+    height: $canvasParent.height()
+  };
+
+  this._canvas.attr('width', $canvasParentDimensions.width);
+  this._canvas.attr('height', $canvasParentDimensions.height);
 };
 
 Stage.prototype.addChild = function (child) {
-  this._stage.addChild(child.getSprite());
+  this._container.addChild(child);
 };
 
 Stage.prototype.moveChildToTop = function (child) {
-  this._stage.setChildIndex(child.getSprite(), this._stage.getNumChildren() - 1);
+  this._container.setChildIndex(child, this._container.getChildCount() - 1);
 };
 
 Stage.prototype.moveChildToBottom = function (child) {
-  this._stage.setChildIndex(child.getSprite(), 0);
+  this._container.setChildIndex(child, 0);
 };
 
 Stage.prototype.moveChildUp = function (child) {
-  var actualIndex = this.getChildIndex(child);
-  this.setChildIndex(child, actualIndex + 1);
+  var actualIndex = this._container.getChildIndex(child);
+  this._container.setChildIndex(child, actualIndex + 1);
 };
 
 Stage.prototype.moveChildDown = function (child) {
-  var actualIndex = this.getChildIndex(child);
-  this.setChildIndex(child, actualIndex - 1);
+  var actualIndex = this._container.getChildIndex(child);
+  this._container.setChildIndex(child, actualIndex - 1);
 };
 
 Stage.prototype.getChildIndex = function (child) {
-  return this._stage.getChildIndex(child.getSprite());
+  return this._container.getChildIndex(child);
 };
 
 Stage.prototype.setChildIndex = function (child, index) {
-  this._stage.setChildIndex(child.getSprite(), index);
+  this._container.setChildIndex(child, index);
 };
 
 Stage.prototype.showContextMenu = function (editorElement, menuItems, mouseDownEvent) {

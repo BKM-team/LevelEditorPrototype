@@ -35,15 +35,26 @@ ContextMenu.prototype._bindActionsToEditorElement = function (editorElement, men
     queue.push(item);
   });
 
-  while(queue.length) {
-    currentMenuItem = queue.shift();
-    if(currentMenuItem.action) {
-      currentMenuItem.action = currentMenuItem.action.bind(editorElement);
+  var bindCurrentMenuItemAction = function (currentMenuItem, editorElement) {
+    if(!currentMenuItem.action) {
+      return;
     }
 
-    if(currentMenuItem.children) {
-      queue.push.apply(queue, currentMenuItem.children);
+    currentMenuItem.action = currentMenuItem.action.bind(editorElement);
+  };
+
+  var addCurrentMenuItemChildrenToQueue = function (currentMenuItem, queue) {
+    if(!currentMenuItem.children) {
+      return;
     }
+
+    queue.push.apply(queue, currentMenuItem.children);
+  }
+
+  while(queue.length) {
+    currentMenuItem = queue.shift();
+    bindCurrentMenuItemAction(currentMenuItem, editorElement);
+    addCurrentMenuItemChildrenToQueue(currentMenuItem, queue);
   }
 
   return boundMenuItems;
