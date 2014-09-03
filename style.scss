@@ -60,6 +60,10 @@ img.drag-helper {
 .right-panel {
   height: 100%;
   overflow: hidden;
+
+  canvas {
+    background-color: #888;
+  }
 }
 
 .contextMenuPositioner {

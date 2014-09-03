@@ -1,15 +1,32 @@
 'use strict';
 
-var Container = function (parentStage) {
-  this._parentStage = parentStage;
+var Container = function (parentContainer) {
+  this._parentContainer = parentContainer;
   this._container = new createjs.Container();
-  this._parentStage.addChild(this._container);
+  this._parentContainer.addChild(this._container);
+
   this._container.x = 0;
   this._container.y = 0;
+
+  this._width = 0;
+  this._height = 0;
+
+  var bg = this._createBackground(0, 0);
+  this._container.addChildAt(bg, 0);
+
+  this._container.on('mousedown', Container._mouseDownHandler.bind(this));
+  this._container.on('pressup', Container._mouseUpHandler.bind(this));
+  this._container.on('pressmove', Container._mouseMoveHandler.bind(this));
+  this._dragging = {};
 };
 
-Container.prototype.addChild = function (child) {
-  this._container.addChild(child.getSprite());
+Container.prototype.addChild = function (child, positionRelativeToCanvas) {
+  var sprite = child.getSprite();
+  //sprite.x = sprite.x - this._container.x;
+  //sprite.y = sprite.y - this._container.y;
+  sprite.x = positionRelativeToCanvas.left - this._container.x;
+  sprite.y = positionRelativeToCanvas.top - this._container.y;
+  this._container.addChild(sprite);
 };
 
 Container.prototype.getChildIndex = function (child) {
@@ -24,14 +41,58 @@ Container.prototype.getChildCount = function () {
   return this._container.getNumChildren();
 };
 
-Container._mouseDownHandler = function () {
+Container.prototype.setSize = function (width, height) {
+  this._width = width;
+  this._height = height;
 
+  var bg = this._createBackground();
+  this._updateBackgroundShape(bg);
 };
 
-Container._mouseMoveHandler = function () {
+Container.prototype._updateBackgroundShape = function (newBackground) {
+  this._container.removeChildAt(0);
+  this._background = newBackground;
+  this._container.addChildAt(newBackground, 0);
+};
 
+Container.prototype._createBackground = function () {
+  var bg = new createjs.Shape();
+  bg.x = 0;
+  bg.y = 0;
+
+  bg.graphics
+    .beginFill('#fff')
+    .drawRect(0, 0, this._width, this._height);
+
+  return bg;
+};
+
+Container.prototype.getSize = function () {
+  return {
+    width: this._width,
+    height: this._height
+  };
+};
+
+Container._mouseDownHandler = function (evt) {
+  this._dragging.isElementDragged = true;
+  this._dragging.startPosition = {
+    x: this._container.x - evt.stageX,
+    y: this._container.y - evt.stageY
+  };
+  this._container.cursor = 'move';
+};
+
+Container._mouseMoveHandler = function (evt) {
+  if(this._dragging.isElementDragged) {
+    this._container.x = evt.stageX + this._dragging.startPosition.x;
+    this._container.y = evt.stageY + this._dragging.startPosition.y;
+  }
 };
 
 Container._mouseUpHandler = function () {
-
+  if(this._dragging.isElementDragged) {
+    this._dragging.isElementDragged = false;
+    this._container.cursor = null;
+  }
 };

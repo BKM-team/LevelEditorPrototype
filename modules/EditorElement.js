@@ -72,6 +72,8 @@ EditorElement._mouseDownHandler = function (evt) {
   var LEFT_BUTTON = 0,
     RIGHT_BUTTON = 2;
 
+  evt.stopPropagation();
+
   switch(evt.nativeEvent.button) {
     case LEFT_BUTTON:
       return EditorElement._mouseDownLeftButtonHandler.apply(this, arguments);

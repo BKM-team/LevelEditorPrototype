@@ -79,7 +79,7 @@ $(document).ready(function () {
 
   var stage = new Stage($('#stage'));
   stage.setGridSize(20);
-  stage.updateSize();
+  stage.setSizeToParent();
 
   $('button.settings').on('click', function () {
     var newGridSize = prompt('TEMPORARY! Set new value for grid:', stage.getGridSize());

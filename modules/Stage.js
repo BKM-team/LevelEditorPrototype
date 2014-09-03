@@ -39,7 +39,7 @@ var Stage = function ($canvas) {
   $(window).on('resize', Stage._resizeHandler.bind(this));
 };
 
-Stage.prototype.updateSize = function () {
+Stage.prototype.setSizeToParent = function () {
   var $canvasParent = this._canvas.parent();
   var $canvasParentDimensions = {
     width: $canvasParent.width(),
@@ -48,6 +48,8 @@ Stage.prototype.updateSize = function () {
 
   this._canvas.attr('width', $canvasParentDimensions.width);
   this._canvas.attr('height', $canvasParentDimensions.height);
+
+  this._container.setSize($canvasParentDimensions.width, $canvasParentDimensions.height);
 };
 
 Stage.prototype.addChild = function (child) {
@@ -100,21 +102,22 @@ Stage.prototype.getGridSize = function () {
 
 Stage._dropHandler = function (event, ui) {
   var element = new EditorElement(ui.helper.eq(0).attr('src'), this);
-  this.addChild(element);
+  //this.addChild(element);
   var position = ui.helper.posRelativeTo(this._canvas);
 
-  element.setPosition({
-    x: position.left,
-    y: position.top
-  });
+//  element.setPosition({
+//    x: position.left,
+//    y: position.top
+//  });
 
-  element.snapToGrid();
+  //element.snapToGrid();
 
+  this._container.addChild(element, position);
   ui.helper.remove();
 };
 
 Stage._resizeHandler = function () {
-  this.updateSize();
+  this.setSizeToParent();
 };
 
 Stage._tickHandler = function () {
