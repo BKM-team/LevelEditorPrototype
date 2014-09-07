@@ -102,15 +102,7 @@ Stage.prototype.getGridSize = function () {
 
 Stage._dropHandler = function (event, ui) {
   var element = new EditorElement(ui.helper.eq(0).attr('src'), this);
-  //this.addChild(element);
   var position = ui.helper.posRelativeTo(this._canvas);
-
-//  element.setPosition({
-//    x: position.left,
-//    y: position.top
-//  });
-
-  //element.snapToGrid();
 
   this._container.addChild(element, position);
   ui.helper.remove();

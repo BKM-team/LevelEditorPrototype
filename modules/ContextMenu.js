@@ -49,7 +49,7 @@ ContextMenu.prototype._bindActionsToEditorElement = function (editorElement, men
     }
 
     queue.push.apply(queue, currentMenuItem.children);
-  }
+  };
 
   while(queue.length) {
     currentMenuItem = queue.shift();

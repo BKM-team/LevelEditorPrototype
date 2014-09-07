@@ -22,8 +22,6 @@ var Container = function (parentContainer) {
 
 Container.prototype.addChild = function (child, positionRelativeToCanvas) {
   var sprite = child.getSprite();
-  //sprite.x = sprite.x - this._container.x;
-  //sprite.y = sprite.y - this._container.y;
   sprite.x = positionRelativeToCanvas.left - this._container.x;
   sprite.y = positionRelativeToCanvas.top - this._container.y;
   this._container.addChild(sprite);
@@ -51,7 +49,6 @@ Container.prototype.setSize = function (width, height) {
 
 Container.prototype._updateBackgroundShape = function (newBackground) {
   this._container.removeChildAt(0);
-  this._background = newBackground;
   this._container.addChildAt(newBackground, 0);
 };
 
@@ -65,13 +62,6 @@ Container.prototype._createBackground = function () {
     .drawRect(0, 0, this._width, this._height);
 
   return bg;
-};
-
-Container.prototype.getSize = function () {
-  return {
-    width: this._width,
-    height: this._height
-  };
 };
 
 Container._mouseDownHandler = function (evt) {
