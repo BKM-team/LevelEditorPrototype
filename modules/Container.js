@@ -45,6 +45,14 @@ Container.prototype.setSize = function (width, height) {
 
   var bg = this._createBackground();
   this._updateBackgroundShape(bg);
+  this._container.x = this._container.y = 0;
+};
+
+Container.prototype.getSize = function () {
+  return {
+    width: this._width,
+    height: this._height
+  };
 };
 
 Container.prototype._updateBackgroundShape = function (newBackground) {

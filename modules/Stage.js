@@ -14,24 +14,11 @@ var Stage = function ($canvas) {
 
   this._container = new Container(this._stage);
 
-  var that = this;
-
   this._canvas.droppable({
     tolerance: 'fit',
     drop: Stage._dropHandler.bind(this),
     over: function (event, ui) {
       ui.helper.css('opacity', '0.5');
-      ui.draggable.on('drag', function (event, ui) {
-        var stagePos = $('#stage').position();
-        var pos = ui.position;
-
-        var left = pos.left - stagePos.left;
-        var top = pos.top - stagePos.top;
-
-        pos.top = top - top%that.getGridSize() + stagePos.top;
-        pos.left = left - left%that.getGridSize() + stagePos.left;
-        ui.helper.position(pos);
-      });
     }
   });
 
@@ -82,6 +69,14 @@ Stage.prototype.setChildIndex = function (child, index) {
   this._container.setChildIndex(child, index);
 };
 
+Stage.prototype.setContainerSize = function (width, height) {
+  this._container.setSize(width, height);
+};
+
+Stage.prototype.getContainerSize = function () {
+  return this._container.getSize();
+};
+
 Stage.prototype.showContextMenu = function (editorElement, menuItems, mouseDownEvent) {
   var canvasOffset = this._canvas.offset();
   var position = {
@@ -90,14 +85,6 @@ Stage.prototype.showContextMenu = function (editorElement, menuItems, mouseDownE
   };
 
   this._contextMenu.show(editorElement, menuItems, position);
-};
-
-Stage.prototype.setGridSize = function (gridSize) {
-  this._gridSize = gridSize;
-};
-
-Stage.prototype.getGridSize = function () {
-  return this._gridSize;
 };
 
 Stage._dropHandler = function (event, ui) {

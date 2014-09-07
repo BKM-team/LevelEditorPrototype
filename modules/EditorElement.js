@@ -105,7 +105,6 @@ EditorElement._mouseMoveHandler = function (evt) {
   if(this._dragging.isElementDragged) {
     this.x = evt.stageX + this._dragging.startPosition.x;
     this.y = evt.stageY + this._dragging.startPosition.y;
-    this.snapToGrid();
     this._sprite.alpha = 0.5;
     this._parentStage.moveChildToTop(this);
   }
@@ -119,19 +118,6 @@ EditorElement._mouseUpHandler = function () {
   }
 };
 
-EditorElement.prototype.setPosition = function (position) {
-  this.x = position.x;
-  this.y = position.y;
-};
-
 EditorElement.prototype.getSprite = function () {
   return this._sprite;
-};
-
-EditorElement.prototype.snapToGrid = function () {
-  var gridSize = this._parentStage.getGridSize();
-  this.setPosition({
-    x: this.x - this.x%gridSize,
-    y: this.y - this.y%gridSize
-  });
 };

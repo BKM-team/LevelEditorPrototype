@@ -78,15 +78,20 @@ $(document).ready(function () {
   Editor.assets.loadAssets('assets.json');
 
   var stage = new Stage($('#stage'));
-  stage.setGridSize(20);
   stage.setSizeToParent();
 
   $('button.settings').on('click', function () {
-    var newGridSize = prompt('TEMPORARY! Set new value for grid:', stage.getGridSize());
-    newGridSize = Number(newGridSize);
-    if(!isNaN(newGridSize)) {
-      stage.setGridSize(newGridSize);
+    var actualDimensions = stage.getContainerSize();
+    var newDimensions = prompt('TEMPORARY: set new dimensions for canvas (please input in this format: width,height): ', actualDimensions.width + ',' + actualDimensions.height);
+    if(!newDimensions.match(/\d+,\d+/)) {
+      alert('Oh, look, what a rebel!');
+      return;
     }
+
+    var width = newDimensions.split(',')[0],
+      height = newDimensions.split(',')[1];
+
+    stage.setContainerSize(width, height);
   });
 
   createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
