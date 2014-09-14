@@ -14,11 +14,13 @@ var Stage = function ($canvas) {
 
   this._container = new Container(this._stage);
 
+  var that = this;
   this._canvas.droppable({
     tolerance: 'fit',
     drop: Stage._dropHandler.bind(this),
     over: function (event, ui) {
       ui.helper.css('opacity', '0.5');
+      var gridSize = that.getGridSize();
     }
   });
 
@@ -85,6 +87,46 @@ Stage.prototype.showContextMenu = function (editorElement, menuItems, mouseDownE
   };
 
   this._contextMenu.show(editorElement, menuItems, position);
+};
+
+Stage.prototype.snapElementToGrid = function (element) {
+  this._container.snapElementToGrid(element);
+};
+
+Stage.prototype.getGridSize = function () {
+  return this._gridSize;
+};
+
+Stage.prototype.setGridSize = function (size) {
+  this._gridSize = size;
+};
+
+Stage.prototype.drawGrid = function () {
+  var xOffset = this._container._container.x % this._gridSize;
+  var yOffset = this._container._container.y % this._gridSize;
+  var x = 0;
+  var height = this._canvas.attr('height');
+  var width = this._canvas.attr('width');
+  var grid = new createjs.Shape();
+  grid.graphics.beginStroke('rgba(0,0,0,0.3)');
+
+  for(; x < width; x += this._gridSize) {
+    grid.graphics
+      .moveTo(x, 0)
+      .lineTo(x, height);
+  }
+
+  var y = 0;
+
+  for(; y < height; y += this._gridSize) {
+    grid.graphics
+      .moveTo(0, y)
+      .lineTo(width, y);
+  }
+
+  grid.x = xOffset;
+  grid.y = yOffset;
+  this._stage.addChild(grid);
 };
 
 Stage._dropHandler = function (event, ui) {

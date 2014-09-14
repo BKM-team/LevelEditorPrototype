@@ -94,6 +94,9 @@ $(document).ready(function () {
     stage.setContainerSize(width, height);
   });
 
+  stage.setGridSize(32);
+  stage.drawGrid();
+
   createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
   createjs.Ticker.setFPS(60);
 });
