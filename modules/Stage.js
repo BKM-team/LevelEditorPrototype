@@ -104,28 +104,26 @@ Stage.prototype.setGridSize = function (size) {
 Stage.prototype.drawGrid = function () {
   var xOffset = this._container._container.x % this._gridSize;
   var yOffset = this._container._container.y % this._gridSize;
-  var x = 0;
+
+  var x = 0, y = 0;
   var height = this._canvas.attr('height');
   var width = this._canvas.attr('width');
+
   var grid = new createjs.Shape();
-  grid.graphics.beginStroke('rgba(0,0,0,0.3)');
+  grid.graphics.beginFill('black');
 
   for(; x < width; x += this._gridSize) {
-    grid.graphics
-      .moveTo(x, 0)
-      .lineTo(x, height);
-  }
-
-  var y = 0;
-
-  for(; y < height; y += this._gridSize) {
-    grid.graphics
-      .moveTo(0, y)
-      .lineTo(width, y);
+    for(y = 0; y < height; y += this._gridSize) {
+      grid.graphics.drawRect(x, y, 1, 1);
+    }
   }
 
   grid.x = xOffset;
   grid.y = yOffset;
+
+  //grid needs to be cached, since if it's too small (i.e. too many dots on the screen) it can kill performance
+  grid.cache(0,0,width,height);
+
   this._stage.addChild(grid);
 };
 
