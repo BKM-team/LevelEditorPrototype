@@ -78,10 +78,12 @@ $(document).ready(function () {
   Editor.assets.loadAssets('assets.json');
 
   var stage = new Stage($('#stage'));
+  window.stage = stage;
+  stage.setGridSize(32);
   stage.setSizeToParent();
 
-  $('button.settings').on('click', function () {
-    var actualDimensions = stage.getContainerSize();
+  function setNewCanvasDimensions() {
+    var actualDimensions = stage.getEditorCanvasSize();
     var newDimensions = prompt('TEMPORARY: set new dimensions for canvas (please input in this format: width,height): ', actualDimensions.width + ',' + actualDimensions.height);
     if(!newDimensions.match(/\d+,\d+/)) {
       alert('Oh, look, what a rebel!');
@@ -91,10 +93,26 @@ $(document).ready(function () {
     var width = newDimensions.split(',')[0],
       height = newDimensions.split(',')[1];
 
-    stage.setContainerSize(width, height);
+    stage.setEditorCanvasSize(width, height);
+  }
+
+  function setNewGridSize() {
+    var actualGridSize = stage.getGridSize();
+    var newGridSize = parseInt(prompt('TEMPORARY: set new grid size', actualGridSize),10);
+    if(!newGridSize) {
+      alert('Whataya tryin to do, dude?');
+      return;
+    }
+
+    stage.setGridSize(newGridSize);
+    //stage.updateGrid();
+  }
+
+  $('button.settings').on('click', function () {
+    setNewCanvasDimensions();
+    //setNewGridSize();
   });
 
-  stage.setGridSize(32);
   stage.drawGrid();
 
   createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;

@@ -12,7 +12,9 @@ var Stage = function ($canvas) {
   this._stage = new createjs.Stage(this._canvas.attr('id'));
   this._stage.enableMouseOver(10);
 
-  this._container = new Container(this._stage);
+  var editorCanvasContainer = new createjs.Container();
+  this._editorCanvas = new EditorCanvas(editorCanvasContainer);
+  this._stage.addChild(editorCanvasContainer);
 
   var that = this;
   this._canvas.droppable({
@@ -20,7 +22,6 @@ var Stage = function ($canvas) {
     drop: Stage._dropHandler.bind(this),
     over: function (event, ui) {
       ui.helper.css('opacity', '0.5');
-      var gridSize = that.getGridSize();
     }
   });
 
@@ -38,45 +39,57 @@ Stage.prototype.setSizeToParent = function () {
   this._canvas.attr('width', $canvasParentDimensions.width);
   this._canvas.attr('height', $canvasParentDimensions.height);
 
-  this._container.setSize($canvasParentDimensions.width, $canvasParentDimensions.height);
+  var containerSize = {
+    width: $canvasParentDimensions.width - ($canvasParentDimensions.width % this.getGridSize()),
+    height: $canvasParentDimensions.height - ($canvasParentDimensions.height % this.getGridSize())
+  };
+
+  this._editorCanvas.setSize(containerSize.width, containerSize.height);
 };
 
 Stage.prototype.addChild = function (child) {
-  this._container.addChild(child);
+  this._editorCanvas.addChild(child);
 };
 
 Stage.prototype.moveChildToTop = function (child) {
-  this._container.setChildIndex(child, this._container.getChildCount() - 1);
+  this._editorCanvas.setChildIndex(child, this._editorCanvas.getChildCount() - 1);
 };
 
 Stage.prototype.moveChildToBottom = function (child) {
-  this._container.setChildIndex(child, 0);
+  this._editorCanvas.setChildIndex(child, 0);
 };
 
 Stage.prototype.moveChildUp = function (child) {
-  var actualIndex = this._container.getChildIndex(child);
-  this._container.setChildIndex(child, actualIndex + 1);
+  var actualIndex = this._editorCanvas.getChildIndex(child);
+  this._editorCanvas.setChildIndex(child, actualIndex + 1);
 };
 
 Stage.prototype.moveChildDown = function (child) {
-  var actualIndex = this._container.getChildIndex(child);
-  this._container.setChildIndex(child, actualIndex - 1);
+  var actualIndex = this._editorCanvas.getChildIndex(child);
+  this._editorCanvas.setChildIndex(child, actualIndex - 1);
 };
 
 Stage.prototype.getChildIndex = function (child) {
-  return this._container.getChildIndex(child);
+  return this._editorCanvas.getChildIndex(child);
 };
 
 Stage.prototype.setChildIndex = function (child, index) {
-  this._container.setChildIndex(child, index);
+  this._editorCanvas.setChildIndex(child, index);
 };
 
-Stage.prototype.setContainerSize = function (width, height) {
-  this._container.setSize(width, height);
+Stage.prototype.setEditorCanvasSize = function (width, height) {
+  var gridSize = this.getGridSize();
+  this._editorCanvas.setSize(width * gridSize, height * gridSize);
 };
 
-Stage.prototype.getContainerSize = function () {
-  return this._container.getSize();
+Stage.prototype.getEditorCanvasSize = function () {
+  var actualSize = this._editorCanvas.getSize();
+  var gridSize = this.getGridSize();
+
+  return {
+    width: actualSize.width / gridSize,
+    height: actualSize.height / gridSize
+  };
 };
 
 Stage.prototype.showContextMenu = function (editorElement, menuItems, mouseDownEvent) {
@@ -89,22 +102,21 @@ Stage.prototype.showContextMenu = function (editorElement, menuItems, mouseDownE
   this._contextMenu.show(editorElement, menuItems, position);
 };
 
-Stage.prototype.snapElementToGrid = function (element) {
-  this._container.snapElementToGrid(element);
-};
-
 Stage.prototype.getGridSize = function () {
   return this._gridSize;
 };
 
 Stage.prototype.setGridSize = function (size) {
   this._gridSize = size;
+  this._editorCanvas.setGridSize(size);
+};
+
+Stage.prototype.updateGrid = function () {
+  this._stage.removeChildAt(this._stage.children.length - 1);
+  this.drawGrid();
 };
 
 Stage.prototype.drawGrid = function () {
-  var xOffset = this._container._container.x % this._gridSize;
-  var yOffset = this._container._container.y % this._gridSize;
-
   var x = 0, y = 0;
   var height = this._canvas.attr('height');
   var width = this._canvas.attr('width');
@@ -118,8 +130,8 @@ Stage.prototype.drawGrid = function () {
     }
   }
 
-  grid.x = xOffset;
-  grid.y = yOffset;
+  grid.x = 0;
+  grid.y = 0;
 
   //grid needs to be cached, since if it's too small (i.e. too many dots on the screen) it can kill performance
   grid.cache(0,0,width,height);
@@ -131,7 +143,8 @@ Stage._dropHandler = function (event, ui) {
   var element = new EditorElement(ui.helper.eq(0).attr('src'), this);
   var position = ui.helper.posRelativeTo(this._canvas);
 
-  this._container.addChild(element, position);
+  this._editorCanvas.addChild(element, position);
+  element.snapToGrid();
   ui.helper.remove();
 };
 
