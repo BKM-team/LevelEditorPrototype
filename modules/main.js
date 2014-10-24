@@ -16,47 +16,67 @@ var Editor = {
     _loadingQueue: new createjs.LoadQueue(true),
     _assetsList: {},
     _appendAssetToList: function (asset) {
-      var key1, key2;
-      if(asset.data && asset.data.type === "thumb") {
-        key1 = asset.data.thumbFor;
-        key2 = "thumb";
-      } else {
-        key1 = asset.id;
-        key2 = "src";
+      var category = asset.id.split('/')[0];
+      if(!this._assetsList[category]) {
+        this._assetsList[category] = [];
       }
 
-      if(!this._assetsList[key1]) {
-        this._assetsList[key1] = {};
-      }
-
-      this._assetsList[key1][key2] = asset.src;
+      this._assetsList[category].push(asset.src);
     },
     _renderLoadedAssets: function () {
       var ul = $('ul').eq(0);
-      $.each(this._assetsList, function (key, asset) {
+      $.each(this._assetsList, function (categoryName, category) {
         var li = $('<li />', {
-          html: $('<img />', {
-            src: asset.thumb,
-            'data-original': asset.src
-          })
-        }).appendTo(ul);
+          'class': 'category',
+          html: categoryName
+        });
+
+        var catUl = $('<ul />');
+        li.append(catUl);
+        category.forEach(function (item) {
+          var li = $('<li />', {
+            'class': 'item',
+            html: $('<img />', {
+              src: item
+            })
+          });
+
+          catUl.append(li);
+        });
+
+        ul.append(li);
       });
     },
     _installEventsOnRenderedAssets: function () {
-      $('li').draggable({
+      $('li.item').draggable({
         helper: function () {
-          var $img = $(this).find('img');
-          var originalImage = $('<img />', {
-            src: $img.data().original,
-            'class': 'drag-helper'
-          });
-
-          return originalImage;
+          var $img = $(this).find('img').clone();
+          return $img;
+        },
+        cursorAt: {
+          top: 10,
+          left: 10
         }
       });
     },
-    loadAssets: function (manifestFile) {
-      this._loadingQueue.loadManifest(manifestFile);
+    prepareManifest: function (assets) {
+      var manifest = [];
+
+      Object.getOwnPropertyNames(assets).forEach(function (category) {
+        manifest = manifest.concat(assets[category]);
+      });
+
+      return manifest;
+    },
+    loadAssets: function (assetsFile) {
+      $.ajax(assetsFile)
+        .done((function (response) {
+          var manifest = this.prepareManifest(response.assets);
+          this._loadingQueue.loadManifest({
+            manifest: manifest,
+            path: response.path
+          });
+        }).bind(this));
 
       this._loadingQueue.on('fileload', (function (evt) {
         var item = evt.item;
@@ -79,7 +99,7 @@ $(document).ready(function () {
 
   var stage = new Stage($('#stage'));
   window.stage = stage;
-  stage.setGridSize(32);
+  stage.setGridSize(16);
   stage.setSizeToParent();
 
   function setNewCanvasDimensions() {
