@@ -9,26 +9,34 @@ html, body {
 
 .left-panel {
   border-right: 1px solid black;
+  overflow-y: scroll;
   float: left;
-  @include size(64px, 100%);
+  @include size(96px, 100%);
 
   li {
     cursor: pointer;
-    font-size: 0px;
     line-height: 64px;
     text-align: center;
     user-select: none;
     -webkit-user-select: none;
 
-    img {
-      vertical-align: middle;
+    &.item {
+      font-size: 0px;
+
+      img {
+        vertical-align: middle;
+      }
+
+      &:hover {
+        background-color: rgba(0, 0, 128, 0.3);
+      }
+
+      @include size(100%, 64px);
     }
 
-    &:hover {
-      background-color: rgba(0, 0, 128, 0.3);
-    }
+    &.category {
 
-    @include size(64px, 64px);
+    }
   }
 
   .settings {
