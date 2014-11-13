@@ -50,13 +50,15 @@ var Editor = {
         _installEventsOnRenderedAssets: function () {
             $('li.item').draggable({
                 helper: function () {
-                    var $img = $(this).find('img').clone();
+                    var $img = $(this).find('img').clone().css('position', 'absolute');
                     return $img;
                 },
                 cursorAt: {
                     top: 10,
                     left: 10
-                }
+                },
+                appendTo: 'body',
+                scroll: false
             });
         },
         prepareManifest: function (assets) {
@@ -107,7 +109,7 @@ $(document).ready(function () {
 
     var stage = new Stage($('#stage'));
     window.stage = stage;
-    stage.setGridSize(16);
+    stage.setGridSize(32);
     stage.setSizeToParent();
 
     function setNewCanvasDimensions() {
