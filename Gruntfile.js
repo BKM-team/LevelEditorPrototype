@@ -321,6 +321,7 @@ module.exports = function (grunt) {
           src: [
             '*.{ico,png,txt}',
             'images/{,*/}*.webp',
+            'assets/**/*',
             '{,*/}*.html',
             'styles/fonts/{,*/}*.*'
           ]
@@ -335,6 +336,13 @@ module.exports = function (grunt) {
         cwd: '<%= config.app %>/styles',
         dest: '.tmp/styles/',
         src: '{,*/}*.css'
+      },
+      assets: {
+        expand: true,
+        dot: true,
+        cwd: '<%= config.app %>/assets',
+        dest: '.tmp/assets/',
+        src: '**/*'
       }
     },
 
@@ -342,7 +350,8 @@ module.exports = function (grunt) {
     concurrent: {
       server: [
         'sass:server',
-        'copy:styles'
+        'copy:styles',
+        'copy:assets'
       ],
       test: [
         'copy:styles'

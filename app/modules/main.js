@@ -103,7 +103,7 @@ var Editor = {
 };
 
 $(document).ready(function () {
-  Editor.assets.loadAssets('assets.json');
+  Editor.assets.loadAssets('assets/assets.json');
 
   var stage = new Stage($('#stage'));
   window.stage = stage;
