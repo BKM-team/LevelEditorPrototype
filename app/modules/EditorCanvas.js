@@ -2,6 +2,9 @@
 
 var EditorCanvas = function (container) {
     this._container = container;
+    this._layers = [];
+    this.addLayer('background');
+    this._activeLayer = 0;
 
     this._container.x = 0;
     this._container.y = 0;
@@ -23,7 +26,8 @@ EditorCanvas.prototype.addChild = function (child, positionRelativeToCanvas) {
     var sprite = child.getSprite();
     sprite.x = positionRelativeToCanvas.left - this._container.x;
     sprite.y = positionRelativeToCanvas.top - this._container.y;
-    this._container.addChild(sprite);
+    this._layers[this._activeLayer].addChild(sprite);
+    //this._container.addChild(sprite);
 };
 
 EditorCanvas.prototype.getChildIndex = function (child) {
@@ -119,3 +123,26 @@ EditorCanvas.prototype.snapToGrid = function () {
     }
 };
 
+EditorCanvas.prototype.addLayer = function (name) {
+    this._layers.push(new Layer(name));
+    this._container.addChild(this._layers[this._layers.length - 1].getContainer());
+};
+
+EditorCanvas.prototype.getLayersList = function () {
+    return this._layers.map(function (layer, index) {
+        return {
+            name: layer.getName(),
+            active: index === this._activeLayer,
+            visible: layer.getVisibility()
+        } ;
+    }, this);
+};
+
+EditorCanvas.prototype.setActiveLayer = function (index) {
+    this._activeLayer = index;
+};
+
+EditorCanvas.prototype.changeLayerVisibility = function (index, visibility) {
+    var layer = this._layers[index];
+    visibility ? layer.show() : layer.hide();
+};

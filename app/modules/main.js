@@ -50,8 +50,7 @@ var Editor = {
         _installEventsOnRenderedAssets: function () {
             $('li.item').draggable({
                 helper: function () {
-                    var $img = $(this).find('img').clone().css('position', 'absolute');
-                    return $img;
+                    return $(this).find('img').clone();
                 },
                 cursorAt: {
                     top: 10,
@@ -101,6 +100,51 @@ var Editor = {
                 this._loadingQueue.removeAllEventListeners();
             }).bind(this));
         }
+    },
+    layers: {
+        _appendNewLayer: function ($ul, layer, index) {
+            var $input = $('<input />', {
+                type: 'checkbox',
+                checked: layer.visible
+            });
+
+            $input.on('change', this._changeLayerVisibility.bind(this, $input, index));
+
+            var $li = $('<li />', {
+                'class': layer.active ? 'active' : ''
+            });
+
+            $li.append($input);
+            $li.append($('<label />', {
+                html: layer.name
+            }));
+
+            $li.on('click', this._changeActiveLayer.bind(this, index));
+            $ul.append($li);
+        },
+        _changeActiveLayer: function (index) {
+            stage.setActiveLayer(index);
+            this.updateLayersList();
+        },
+        _changeLayerVisibility: function ($input, index) {
+            var isVisible = $input.prop('checked');
+            stage.changeLayerVisibility(index, isVisible);
+            this.updateLayersList();
+        },
+        updateLayersList: function () {
+            var $ul = $('.right-panel .layers-list');
+            $ul.empty();
+            var layers = stage.getLayersList();
+            layers.forEach(this._appendNewLayer.bind(this, $ul));
+        },
+        addNewLayer: function (name) {
+            stage.addLayer(name);
+            this.updateLayersList();
+        },
+        setActiveLayer: function (index) {
+            stage.setActiveLayer(index);
+            this.updateLayersList();
+        }
     }
 };
 
@@ -143,7 +187,13 @@ $(document).ready(function () {
         //setNewGridSize();
     });
 
+    $('.add-new-layer').on('click', function () {
+        var layerName = prompt('Type new layer name:');
+        Editor.layers.addNewLayer(layerName);
+    });
+
     stage.drawGrid();
+    Editor.layers.updateLayersList();
 
     createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
     createjs.Ticker.setFPS(60);

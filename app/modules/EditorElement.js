@@ -87,7 +87,7 @@ EditorElement._mouseDownHandler = function (evt) {
 
 EditorElement._mouseDownLeftButtonHandler = function (evt) {
     this._dragging.isElementDragged = true;
-    this._dragging.startZIndex = this._parentStage.getChildIndex(this);
+    //this._dragging.startZIndex = this._parentStage.getChildIndex(this);
     this._dragging.startPosition = {
         x: this.x - evt.stageX,
         y: this.y - evt.stageY
@@ -98,7 +98,7 @@ EditorElement._mouseDownRightButtonHandler = function (evt) {
     evt.preventDefault();
     evt.stopPropagation();
 
-    this._parentStage.showContextMenu(this, this._contextMenu, evt);
+    //this._parentStage.showContextMenu(this, this._contextMenu, evt);
 };
 
 EditorElement._mouseMoveHandler = function (evt) {
@@ -109,7 +109,7 @@ EditorElement._mouseMoveHandler = function (evt) {
         this.snapToGrid();
 
         this._sprite.alpha = 0.5;
-        this._parentStage.moveChildToTop(this);
+        //this._parentStage.moveChildToTop(this);
     }
 };
 
@@ -117,7 +117,7 @@ EditorElement._mouseUpHandler = function () {
     if (this._dragging.isElementDragged) {
         this._dragging.isElementDragged = false;
         this._sprite.alpha = 1;
-        this._parentStage.setChildIndex(this, this._dragging.startZIndex);
+       // this._parentStage.setChildIndex(this, this._dragging.startZIndex);
     }
 };
 

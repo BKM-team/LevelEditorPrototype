@@ -51,31 +51,31 @@ Stage.prototype.addChild = function (child) {
     this._editorCanvas.addChild(child);
 };
 
-Stage.prototype.moveChildToTop = function (child) {
-    this._editorCanvas.setChildIndex(child, this._editorCanvas.getChildCount() - 1);
-};
-
-Stage.prototype.moveChildToBottom = function (child) {
-    this._editorCanvas.setChildIndex(child, 0);
-};
-
-Stage.prototype.moveChildUp = function (child) {
-    var actualIndex = this._editorCanvas.getChildIndex(child);
-    this._editorCanvas.setChildIndex(child, actualIndex + 1);
-};
-
-Stage.prototype.moveChildDown = function (child) {
-    var actualIndex = this._editorCanvas.getChildIndex(child);
-    this._editorCanvas.setChildIndex(child, actualIndex - 1);
-};
-
-Stage.prototype.getChildIndex = function (child) {
-    return this._editorCanvas.getChildIndex(child);
-};
-
-Stage.prototype.setChildIndex = function (child, index) {
-    this._editorCanvas.setChildIndex(child, index);
-};
+//Stage.prototype.moveChildToTop = function (child) {
+//    this._editorCanvas.setChildIndex(child, this._editorCanvas.getChildCount() - 1);
+//};
+//
+//Stage.prototype.moveChildToBottom = function (child) {
+//    this._editorCanvas.setChildIndex(child, 0);
+//};
+//
+//Stage.prototype.moveChildUp = function (child) {
+//    var actualIndex = this._editorCanvas.getChildIndex(child);
+//    this._editorCanvas.setChildIndex(child, actualIndex + 1);
+//};
+//
+//Stage.prototype.moveChildDown = function (child) {
+//    var actualIndex = this._editorCanvas.getChildIndex(child);
+//    this._editorCanvas.setChildIndex(child, actualIndex - 1);
+//};
+//
+//Stage.prototype.getChildIndex = function (child) {
+//    return this._editorCanvas.getChildIndex(child);
+//};
+//
+//Stage.prototype.setChildIndex = function (child, index) {
+//    this._editorCanvas.setChildIndex(child, index);
+//};
 
 Stage.prototype.setEditorCanvasSize = function (width, height) {
     var gridSize = this.getGridSize();
@@ -92,15 +92,15 @@ Stage.prototype.getEditorCanvasSize = function () {
     };
 };
 
-Stage.prototype.showContextMenu = function (editorElement, menuItems, mouseDownEvent) {
-    var canvasOffset = this._canvas.offset();
-    var position = {
-        top: mouseDownEvent.stageY + canvasOffset.top,
-        left: mouseDownEvent.stageX + canvasOffset.left
-    };
-
-    this._contextMenu.show(editorElement, menuItems, position);
-};
+//Stage.prototype.showContextMenu = function (editorElement, menuItems, mouseDownEvent) {
+//    var canvasOffset = this._canvas.offset();
+//    var position = {
+//        top: mouseDownEvent.stageY + canvasOffset.top,
+//        left: mouseDownEvent.stageX + canvasOffset.left
+//    };
+//
+//    this._contextMenu.show(editorElement, menuItems, position);
+//};
 
 Stage.prototype.getGridSize = function () {
     return this._gridSize;
@@ -154,4 +154,20 @@ Stage._resizeHandler = function () {
 
 Stage._tickHandler = function () {
     this._stage.update();
+};
+
+Stage.prototype.getLayersList = function () {
+    return this._editorCanvas.getLayersList();
+};
+
+Stage.prototype.addLayer = function (name) {
+    this._editorCanvas.addLayer(name);
+};
+
+Stage.prototype.setActiveLayer = function (index) {
+    this._editorCanvas.setActiveLayer(index);
+};
+
+Stage.prototype.changeLayerVisibility = function (index, visibility) {
+    this._editorCanvas.changeLayerVisibility(index, visibility);
 };

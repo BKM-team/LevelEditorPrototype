@@ -87,6 +87,14 @@ img.drag-helper {
     box-sizing: border-box;
     margin-right: -100%;
     @include size(330px, 100%);
+
+    .layers-list li {
+        cursor: pointer;
+        &.active {
+            color: red;
+            font-weight: bold;
+        }
+    }
 }
 
 .content-wrapper {
