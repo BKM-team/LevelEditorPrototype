@@ -135,7 +135,9 @@ EditorCanvas.prototype.getLayersList = function () {
         return {
             name: layer.getName(),
             active: index === this._activeLayer,
-            visible: layer.getVisibility()
+            visible: layer.getVisibility(),
+            isFirst: index === 0,
+            isLast: index === this._layers.length - 1
         } ;
     }, this);
 };
@@ -160,4 +162,26 @@ EditorCanvas.prototype.deleteLayer = function (index) {
     if(index === this._activeLayer) {
         this._activeLayer = 0;
     }
+};
+
+EditorCanvas.prototype.moveLayerUp = function (index) {
+    this._swapLayers(index, index - 1);
+    if(this._activeLayer === index) {
+        this._activeLayer = index - 1;
+    }
+};
+
+EditorCanvas.prototype.moveLayerDown = function (index) {
+    this._swapLayers(index, index + 1);
+    if(this._activeLayer === index) {
+        this._activeLayer = index + 1;
+    }
+};
+
+EditorCanvas.prototype._swapLayers = function (l1, l2) {
+    var tmp = this._layers[l1];
+    this._layers[l1] = this._layers[l2];
+    this._layers[l2] = tmp;
+
+    this._layersContainer.swapChildrenAt(l1, l2);
 };

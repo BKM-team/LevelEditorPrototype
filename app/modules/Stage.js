@@ -175,3 +175,11 @@ Stage.prototype.changeLayerVisibility = function (index, visibility) {
 Stage.prototype.deleteLayer = function (index) {
     this._editorCanvas.deleteLayer(index);
 };
+
+Stage.prototype.moveLayerUp = function (index) {
+    this._editorCanvas.moveLayerUp(index);
+};
+
+Stage.prototype.moveLayerDown = function (index) {
+    this._editorCanvas.moveLayerDown(index);
+};

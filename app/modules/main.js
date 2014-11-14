@@ -122,16 +122,27 @@ var Editor = {
             $label.on('click', this._changeActiveLayer.bind(this, index));
             $li.append($label);
 
-            if(index === 0) {
-                $ul.append($li);
-                return;
+            if(!layer.isFirst) {
+                var $delete = $('<span />', {
+                    html: '(x)'
+                });
+                $delete.on('click', this._deleteLayer.bind(this, index));
+                $li.append($delete);
+
+                var $moveUp = $('<span />', {
+                    html: '\u25B2'
+                });
+                $moveUp.on('click', this._moveLayerUp.bind(this, index));
+                $li.append($moveUp);
             }
 
-            var $delete = $('<span />', {
-                html: '(x)'
-            });
-            $delete.on('click', this._deleteLayer.bind(this, index));
-            $li.append($delete);
+            if(!layer.isLast) {
+                var $moveDown = $('<span />', {
+                    html: '\u25BC'
+                });
+                $moveDown.on('click', this._moveLayerDown.bind(this, index));
+                $li.append($moveDown);
+            }
 
             $ul.append($li);
         },
@@ -146,6 +157,14 @@ var Editor = {
         },
         _deleteLayer: function (index) {
             stage.deleteLayer(index);
+            this.updateLayersList();
+        },
+        _moveLayerUp: function (index) {
+            stage.moveLayerUp(index);
+            this.updateLayersList();
+        },
+        _moveLayerDown: function (index) {
+            stage.moveLayerDown(index);
             this.updateLayersList();
         },
         updateLayersList: function () {
