@@ -171,3 +171,7 @@ Stage.prototype.setActiveLayer = function (index) {
 Stage.prototype.changeLayerVisibility = function (index, visibility) {
     this._editorCanvas.changeLayerVisibility(index, visibility);
 };
+
+Stage.prototype.deleteLayer = function (index) {
+    this._editorCanvas.deleteLayer(index);
+};

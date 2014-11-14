@@ -115,11 +115,24 @@ var Editor = {
             });
 
             $li.append($input);
-            $li.append($('<label />', {
-                html: layer.name
-            }));
 
-            $li.on('click', this._changeActiveLayer.bind(this, index));
+            var $label = $('<label />', {
+                html: layer.name
+            });
+            $label.on('click', this._changeActiveLayer.bind(this, index));
+            $li.append($label);
+
+            if(index === 0) {
+                $ul.append($li);
+                return;
+            }
+
+            var $delete = $('<span />', {
+                html: '(x)'
+            });
+            $delete.on('click', this._deleteLayer.bind(this, index));
+            $li.append($delete);
+
             $ul.append($li);
         },
         _changeActiveLayer: function (index) {
@@ -129,6 +142,10 @@ var Editor = {
         _changeLayerVisibility: function ($input, index) {
             var isVisible = $input.prop('checked');
             stage.changeLayerVisibility(index, isVisible);
+            this.updateLayersList();
+        },
+        _deleteLayer: function (index) {
+            stage.deleteLayer(index);
             this.updateLayersList();
         },
         updateLayersList: function () {

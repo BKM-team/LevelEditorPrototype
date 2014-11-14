@@ -3,6 +3,7 @@
 var EditorCanvas = function (container) {
     this._container = container;
     this._layers = [];
+    this._layersContainer = new createjs.Container();
     this.addLayer('background');
     this._activeLayer = 0;
 
@@ -15,6 +16,7 @@ var EditorCanvas = function (container) {
 
     var bg = this._createBackground(0, 0);
     this._container.addChildAt(bg, 0);
+    this._container.addChild(this._layersContainer);
 
     this._container.on('mousedown', EditorCanvas._mouseDownHandler.bind(this));
     this._container.on('pressup', EditorCanvas._mouseUpHandler.bind(this));
@@ -125,7 +127,7 @@ EditorCanvas.prototype.snapToGrid = function () {
 
 EditorCanvas.prototype.addLayer = function (name) {
     this._layers.push(new Layer(name));
-    this._container.addChild(this._layers[this._layers.length - 1].getContainer());
+    this._layersContainer.addChild(this._layers[this._layers.length - 1].getContainer());
 };
 
 EditorCanvas.prototype.getLayersList = function () {
@@ -145,4 +147,17 @@ EditorCanvas.prototype.setActiveLayer = function (index) {
 EditorCanvas.prototype.changeLayerVisibility = function (index, visibility) {
     var layer = this._layers[index];
     visibility ? layer.show() : layer.hide();
+};
+
+EditorCanvas.prototype.deleteLayer = function (index) {
+    if(index === 0) {
+        return;
+    }
+
+    this._layersContainer.removeChildAt(index);
+    this._layers.splice(index, 1);
+
+    if(index === this._activeLayer) {
+        this._activeLayer = 0;
+    }
 };
