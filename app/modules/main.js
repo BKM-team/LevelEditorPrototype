@@ -147,48 +147,49 @@ var Editor = {
             $ul.append($li);
         },
         _changeActiveLayer: function (index) {
-            stage.setActiveLayer(index);
+            Editor.stage.setActiveLayer(index);
             this.updateLayersList();
         },
         _changeLayerVisibility: function ($input, index) {
             var isVisible = $input.prop('checked');
-            stage.changeLayerVisibility(index, isVisible);
+            Editor.stage.changeLayerVisibility(index, isVisible);
             this.updateLayersList();
         },
         _deleteLayer: function (index) {
-            stage.deleteLayer(index);
+            Editor.stage.deleteLayer(index);
             this.updateLayersList();
         },
         _moveLayerUp: function (index) {
-            stage.moveLayerUp(index);
+            Editor.stage.moveLayerUp(index);
             this.updateLayersList();
         },
         _moveLayerDown: function (index) {
-            stage.moveLayerDown(index);
+            Editor.stage.moveLayerDown(index);
             this.updateLayersList();
         },
         updateLayersList: function () {
             var $ul = $('.right-panel .layers-list');
             $ul.empty();
-            var layers = stage.getLayersList();
+            var layers = Editor.stage.getLayersList();
             layers.forEach(this._appendNewLayer.bind(this, $ul));
         },
         addNewLayer: function (name) {
-            stage.addLayer(name);
+            Editor.stage.addLayer(name);
             this.updateLayersList();
         },
         setActiveLayer: function (index) {
-            stage.setActiveLayer(index);
+            Editor.stage.setActiveLayer(index);
             this.updateLayersList();
         }
-    }
+    },
+    stage: null
 };
 
 $(document).ready(function () {
     Editor.assets.loadAssets('assets/assets.json');
 
     var stage = new Stage($('#stage'));
-    window.stage = stage;
+    Editor.stage = stage;
     stage.setGridSize(32);
     stage.setSizeToParent();
 

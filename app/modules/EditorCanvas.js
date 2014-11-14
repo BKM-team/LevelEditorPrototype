@@ -168,6 +168,8 @@ EditorCanvas.prototype.moveLayerUp = function (index) {
     this._swapLayers(index, index - 1);
     if(this._activeLayer === index) {
         this._activeLayer = index - 1;
+    } else if (this._activeLayer === index - 1) {
+        this._activeLayer = index;
     }
 };
 
@@ -175,6 +177,8 @@ EditorCanvas.prototype.moveLayerDown = function (index) {
     this._swapLayers(index, index + 1);
     if(this._activeLayer === index) {
         this._activeLayer = index + 1;
+    } else if (this._activeLayer === index + 1) {
+        this._activeLayer = index;
     }
 };
 
