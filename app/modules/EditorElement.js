@@ -106,7 +106,7 @@ EditorElement._mouseMoveHandler = function (evt) {
         this.x = evt.stageX + this._dragging.startPosition.x;
         this.y = evt.stageY + this._dragging.startPosition.y;
 
-        this.snapToGrid();
+        this._parentStage.snapObjectToGrid(this);
 
         this._sprite.alpha = 0.5;
         //this._parentStage.moveChildToTop(this);
@@ -125,18 +125,18 @@ EditorElement.prototype.getSprite = function () {
     return this._sprite;
 };
 
-EditorElement.prototype.snapToGrid = function () {
-    var gridSize = this._parentStage.getGridSize();
-
-    if (this.x % gridSize <= gridSize / 2) {
-        this.x -= this.x % gridSize;
-    } else {
-        this.x += gridSize - this.x % gridSize;
-    }
-
-    if (this.y % gridSize <= gridSize / 2) {
-        this.y -= this.y % gridSize;
-    } else {
-        this.y += gridSize - this.y % gridSize;
-    }
-};
+//EditorElement.prototype.snapToGrid = function () {
+//    var gridSize = this._parentStage.getGridSize();
+//
+//    if (this.x % gridSize <= gridSize / 2) {
+//        this.x -= this.x % gridSize;
+//    } else {
+//        this.x += gridSize - this.x % gridSize;
+//    }
+//
+//    if (this.y % gridSize <= gridSize / 2) {
+//        this.y -= this.y % gridSize;
+//    } else {
+//        this.y += gridSize - this.y % gridSize;
+//    }
+//};
