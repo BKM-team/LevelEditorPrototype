@@ -188,7 +188,7 @@ Stage.prototype.changeLayerVisibility = function (index, visibility) {
 };
 
 Stage.prototype.deleteLayer = function (index) {
-    if(index === 0) {
+    if(this._layers.length === 1) {
         return;
     }
 

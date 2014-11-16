@@ -122,13 +122,15 @@ var Editor = {
             $label.on('click', this._changeActiveLayer.bind(this, index));
             $li.append($label);
 
-            if(!layer.isFirst) {
+            if(!(layer.isFirst && layer.isLast)) {
                 var $delete = $('<span />', {
                     html: '(x)'
                 });
                 $delete.on('click', this._deleteLayer.bind(this, index));
                 $li.append($delete);
+            }
 
+            if(!layer.isFirst) {
                 var $moveUp = $('<span />', {
                     html: '\u25B2'
                 });
