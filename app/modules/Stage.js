@@ -197,6 +197,8 @@ Stage.prototype.deleteLayer = function (index) {
 
     if(index === this._activeLayer) {
         this._activeLayer = 0;
+    } else if (index < this._activeLayer) {
+        this._activeLayer -= 1;
     }
 };
 
