@@ -50,13 +50,14 @@ var Editor = {
         _installEventsOnRenderedAssets: function () {
             $('li.item').draggable({
                 helper: function () {
-                    var $img = $(this).find('img').clone();
-                    return $img;
+                    return $(this).find('img').clone();
                 },
                 cursorAt: {
                     top: 10,
                     left: 10
-                }
+                },
+                appendTo: 'body',
+                scroll: false
             });
         },
         prepareManifest: function (assets) {
@@ -99,49 +100,110 @@ var Editor = {
                 this._loadingQueue.removeAllEventListeners();
             }).bind(this));
         }
-    }
+    },
+    layers: {
+        _appendNewLayer: function ($ul, layer, index) {
+            var $input = $('<input />', {
+                type: 'checkbox',
+                checked: layer.visible
+            });
+
+            $input.on('change', this._changeLayerVisibility.bind(this, $input, index));
+
+            var $li = $('<li />', {
+                'class': layer.active ? 'active' : ''
+            });
+
+            $li.append($input);
+
+            var $label = $('<label />', {
+                html: layer.name
+            });
+            $label.on('click', this._changeActiveLayer.bind(this, index));
+            $li.append($label);
+
+            if(!(layer.isFirst && layer.isLast)) {
+                var $delete = $('<span />', {
+                    html: '(x)'
+                });
+                $delete.on('click', this._deleteLayer.bind(this, index));
+                $li.append($delete);
+            }
+
+            if(!layer.isFirst) {
+                var $moveUp = $('<span />', {
+                    html: '\u25B2'
+                });
+                $moveUp.on('click', this._moveLayerUp.bind(this, index));
+                $li.append($moveUp);
+            }
+
+            if(!layer.isLast) {
+                var $moveDown = $('<span />', {
+                    html: '\u25BC'
+                });
+                $moveDown.on('click', this._moveLayerDown.bind(this, index));
+                $li.append($moveDown);
+            }
+
+            $ul.append($li);
+        },
+        _changeActiveLayer: function (index) {
+            Editor.stage.setActiveLayer(index);
+            this.updateLayersList();
+        },
+        _changeLayerVisibility: function ($input, index) {
+            var isVisible = $input.prop('checked');
+            Editor.stage.changeLayerVisibility(index, isVisible);
+            this.updateLayersList();
+        },
+        _deleteLayer: function (index) {
+            Editor.stage.deleteLayer(index);
+            this.updateLayersList();
+        },
+        _moveLayerUp: function (index) {
+            Editor.stage.moveLayerUp(index);
+            this.updateLayersList();
+        },
+        _moveLayerDown: function (index) {
+            Editor.stage.moveLayerDown(index);
+            this.updateLayersList();
+        },
+        updateLayersList: function () {
+            var $ul = $('.right-panel .layers-list');
+            $ul.empty();
+            var layers = Editor.stage.getLayersList();
+            layers.forEach(this._appendNewLayer.bind(this, $ul));
+        },
+        addNewLayer: function (name) {
+            Editor.stage.addLayer(name);
+            this.updateLayersList();
+        },
+        setActiveLayer: function (index) {
+            Editor.stage.setActiveLayer(index);
+            this.updateLayersList();
+        }
+    },
+    canvas: null,
+    stage: null
 };
 
 $(document).ready(function () {
     Editor.assets.loadAssets('assets/assets.json');
 
-    var stage = new Stage($('#stage'));
-    window.stage = stage;
-    stage.setGridSize(16);
-    stage.setSizeToParent();
+    var canvas = new Canvas($('#main-canvas'));
+    Editor.canvas = canvas;
+    Editor.stage = canvas.stage;
 
-    function setNewCanvasDimensions() {
-        var actualDimensions = stage.getEditorCanvasSize();
-        var newDimensions = prompt('TEMPORARY: set new dimensions for canvas (please input in this format: width,height): ', actualDimensions.width + ',' + actualDimensions.height);
-        if (!newDimensions.match(/\d+,\d+/)) {
-            alert('Oh, look, what a rebel!');
-            return;
-        }
+    Editor.canvas.setSizeToParent();
+    Editor.stage.setSize(20, 20);
 
-        var width = newDimensions.split(',')[0],
-            height = newDimensions.split(',')[1];
-
-        stage.setEditorCanvasSize(width, height);
-    }
-
-    function setNewGridSize() {
-        var actualGridSize = stage.getGridSize();
-        var newGridSize = parseInt(prompt('TEMPORARY: set new grid size', actualGridSize), 10);
-        if (!newGridSize) {
-            alert('Whataya tryin to do, dude?');
-            return;
-        }
-
-        stage.setGridSize(newGridSize);
-        //stage.updateGrid();
-    }
-
-    $('button.settings').on('click', function () {
-        setNewCanvasDimensions();
-        //setNewGridSize();
+    $('.add-new-layer').on('click', function () {
+        var layerName = prompt('Type new layer name:');
+        Editor.layers.addNewLayer(layerName);
     });
 
-    stage.drawGrid();
+    Editor.layers.updateLayersList();
 
     createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
     createjs.Ticker.setFPS(60);

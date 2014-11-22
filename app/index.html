@@ -17,18 +17,29 @@
     <link rel="stylesheet" href="bower_components/jquery-ui/jquery-ui.css"/>
     <link rel="stylesheet" href="bower_components/jquery-ui/jquery-ui.theme.css"/>
 
-    <script type="text/javascript" src="modules/EditorCanvas.js"></script>
+    <script type="text/javascript" src="modules/Stage.js"></script>
     <script type="text/javascript" src="modules/ContextMenu.js"></script>
     <script type="text/javascript" src="modules/EditorElement.js"></script>
-    <script type="text/javascript" src="modules/Stage.js"></script>
+    <script type="text/javascript" src="modules/Layer.js"></script>
+    <script type="text/javascript" src="modules/Canvas.js"></script>
     <script type="text/javascript" src="modules/main.js"></script>
 </head>
 <body>
-    <div class="left-panel">
+<div class="content-wrapper">
+    <div class="middle-panel column">
+        <canvas id="main-canvas"></canvas>
+    </div>
+    <div class="left-panel column">
         <ul></ul>
     </div>
-    <div class="right-panel">
-        <canvas id="stage"></canvas>
+    <div class="right-panel column">
+        <div>
+            Layers:
+            <ul class="layers-list"></ul>
+        </div>
+        <button class="add-new-layer">Add new layer</button>
     </div>
+</div>
+
 </body>
 </html>

@@ -7,12 +7,18 @@ html, body {
     width: $width;
 }
 
+body {
+    min-width: 522px;
+}
+
 .left-panel {
     border-right: 1px solid black;
+    box-sizing: border-box;
     overflow-y: scroll;
-    float: left;
+    overflow-x: hidden;
     @include size(96px, 100%);
     margin-left: -100%;
+    right: 96px;
 
     li {
         cursor: pointer;
@@ -66,15 +72,40 @@ img.drag-helper {
     cursor: pointer;
 }
 
-.right-panel {
-    float: left;
+.middle-panel {
     overflow: hidden;
-    margin-left: -330px;
-    @include size(330px, 100%);
+    @include size(100%, 100%);
+
+    canvas {
+        background-color: #888;
+    }
 }
 
-  canvas {
-    background-color: #888;
+.right-panel {
+    border-left: 1px solid #000;
+    overflow: hidden;
+    box-sizing: border-box;
+    margin-right: -100%;
+    @include size(330px, 100%);
+
+    .layers-list li {
+        cursor: pointer;
+        &.active {
+            color: red;
+            font-weight: bold;
+        }
+    }
+}
+
+.content-wrapper {
+    padding-left: 96px;
+    padding-right: 330px;
+    height: 100%;
+
+    .column {
+        position: relative;
+        float: left;
+    }
 }
 
 .contextMenuPositioner {
