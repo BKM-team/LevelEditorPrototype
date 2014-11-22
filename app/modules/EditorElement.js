@@ -3,9 +3,9 @@
 var EditorElement = function (imageSrc, parentStage) {
     this._sprite = new createjs.Bitmap(imageSrc);
 
-    this._sprite.on('mousedown', EditorElement._mouseDownHandler.bind(this));
-    this._sprite.on('pressup', EditorElement._mouseUpHandler.bind(this));
-    this._sprite.on('pressmove', EditorElement._mouseMoveHandler.bind(this));
+    this._sprite.on('mousedown', EditorElement._mouseDownHandler, this);
+    this._sprite.on('pressup', EditorElement._mouseUpHandler, this);
+    this._sprite.on('pressmove', EditorElement._mouseMoveHandler, this);
     this._sprite.cursor = 'pointer';
 
     this._parentStage = parentStage;
@@ -18,37 +18,8 @@ var EditorElement = function (imageSrc, parentStage) {
     Object.defineProperty(this, 'y', EditorElement._yGetSet);
 };
 
-EditorElement._contextMenu = [
-    {
-        title: 'Move',
-        children: [
-            {
-                title: 'to the top',
-                action: function () {
-                    this._parentStage.moveChildToTop(this);
-                }
-            },
-            {
-                title: 'up',
-                action: function () {
-                    this._parentStage.moveChildUp(this);
-                }
-            },
-            {
-                title: 'down',
-                action: function () {
-                    this._parentStage.moveChildDown(this);
-                }
-            },
-            {
-                title: 'to the bottom',
-                action: function () {
-                    this._parentStage.moveChildToBottom(this);
-                }
-            }
-        ]
-    }
-];
+EditorElement._NORMAL_ALPHA_LEVEL = 1;
+EditorElement._DRAGGED_ITEM_ALPHA_LEVEL = 0.5;
 
 EditorElement._xGetSet = {
     get: function () {
@@ -87,7 +58,6 @@ EditorElement._mouseDownHandler = function (evt) {
 
 EditorElement._mouseDownLeftButtonHandler = function (evt) {
     this._dragging.isElementDragged = true;
-    //this._dragging.startZIndex = this._parentStage.getChildIndex(this);
     this._dragging.startPosition = {
         x: this.x - evt.stageX,
         y: this.y - evt.stageY
@@ -97,8 +67,6 @@ EditorElement._mouseDownLeftButtonHandler = function (evt) {
 EditorElement._mouseDownRightButtonHandler = function (evt) {
     evt.preventDefault();
     evt.stopPropagation();
-
-    //this._parentStage.showContextMenu(this, this._contextMenu, evt);
 };
 
 EditorElement._mouseMoveHandler = function (evt) {
@@ -108,35 +76,17 @@ EditorElement._mouseMoveHandler = function (evt) {
 
         this._parentStage.snapObjectToGrid(this);
 
-        this._sprite.alpha = 0.5;
-        //this._parentStage.moveChildToTop(this);
+        this._sprite.alpha = EditorElement._DRAGGED_ITEM_ALPHA_LEVEL;
     }
 };
 
 EditorElement._mouseUpHandler = function () {
     if (this._dragging.isElementDragged) {
         this._dragging.isElementDragged = false;
-        this._sprite.alpha = 1;
-       // this._parentStage.setChildIndex(this, this._dragging.startZIndex);
+        this._sprite.alpha = EditorElement._NORMAL_ALPHA_LEVEL;
     }
 };
 
 EditorElement.prototype.getSprite = function () {
     return this._sprite;
 };
-
-//EditorElement.prototype.snapToGrid = function () {
-//    var gridSize = this._parentStage.getGridSize();
-//
-//    if (this.x % gridSize <= gridSize / 2) {
-//        this.x -= this.x % gridSize;
-//    } else {
-//        this.x += gridSize - this.x % gridSize;
-//    }
-//
-//    if (this.y % gridSize <= gridSize / 2) {
-//        this.y -= this.y % gridSize;
-//    } else {
-//        this.y += gridSize - this.y % gridSize;
-//    }
-//};
