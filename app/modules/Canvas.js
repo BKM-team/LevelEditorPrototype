@@ -31,6 +31,8 @@ Canvas.prototype.setSizeToParent = function () {
 
     this._$canvas.attr('width', $canvasParentDimensions.width);
     this._$canvas.attr('height', $canvasParentDimensions.height);
+
+    this.stage.drawGrid($canvasParentDimensions.width, $canvasParentDimensions.height);
 };
 
 

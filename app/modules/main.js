@@ -198,10 +198,6 @@ $(document).ready(function () {
     Editor.canvas.setSizeToParent();
     Editor.stage.setSize(20, 20);
 
-    $('button.settings').on('click', function () {
-        setNewCanvasDimensions();
-    });
-
     $('.add-new-layer').on('click', function () {
         var layerName = prompt('Type new layer name:');
         Editor.layers.addNewLayer(layerName);

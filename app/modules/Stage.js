@@ -1,38 +1,38 @@
 'use strict';
 
-var Stage = function (stageElement, width, height) {
+var Stage = function (stageElement) {
     this._stage = new createjs.Stage(stageElement);
     this._stage.enableMouseOver(10);
     createjs.Ticker.on('tick', this._tickHandler, this);
 
+    this._gridSize = Stage._GRID_SIZE;
+
     this._container = new createjs.Container();
     this._stage.addChild(this._container);
+
+    var backgroundPlaceholder = new createjs.Shape();
+    this._container.addChildAt(backgroundPlaceholder, Stage._BACKGROUND_INDEX);
 
     this._layers = [];
     this._layersContainer = new createjs.Container();
     this._layersContainer.x = 0;
     this._layersContainer.y = 0;
-
-    this.addLayer('background');
+    this.addLayer(Stage._DEFAULT_BACKGROUND_LAYER_NAME);
     this._activeLayer = 0;
-
-    this._width = width;
-    this._height = height;
-    this._gridSize = 32;
-
-    var bg = this._createBackground(0, 0);
-    this._container.addChildAt(bg, 0);
-
-    this._container.addChild(this._layersContainer);
-
-    var grid = this._createGrid();
-    this._stage.addChild(grid);
+    this._container.addChildAt(this._layersContainer, Stage._LAYER_CONTAINER_INDEX);
 
     this._stage.on('mousedown', this._mouseDownHandler, this);
     this._stage.on('pressup', this._mouseUpHandler, this);
     this._stage.on('pressmove', this._mouseMoveHandler, this);
     this._dragging = {};
 };
+
+//TODO: someday allow user to change the grid size again
+Stage._GRID_SIZE = 32;
+Stage._DEFAULT_BACKGROUND_LAYER_NAME = 'background';
+Stage._BACKGROUND_INDEX = 0;
+Stage._LAYER_CONTAINER_INDEX = 1;
+Stage._GRID_INDEX = 2;
 
 Stage.prototype.addChild = function (child, positionRelativeToCanvas) {
     var sprite = child.getSprite();
@@ -60,24 +60,14 @@ Stage.prototype.snapObjectToGrid = function (object) {
     }
 };
 
-Stage.prototype.setSize = function (width, height) {
-    this._width = width * this._gridSize;
-    this._height = height * this._gridSize;
+Stage.prototype.setSize = function (xTilesCount, yTilesCount) {
+    this._width = xTilesCount * this._gridSize;
+    this._height = yTilesCount * this._gridSize;
 
     var bg = this._createBackground();
     this._updateBackgroundShape(bg);
 
-    var grid = this._createGrid();
-    this._updateGrid(grid);
-
     this._container.x = this._container.y = 0;
-};
-
-Stage.prototype.getSize = function () {
-    return {
-        width: this._width,
-        height: this._height
-    };
 };
 
 Stage.prototype.getGridSize = function () {
@@ -106,17 +96,17 @@ Stage.prototype._createBackground = function () {
     return bg;
 };
 
-Stage.prototype._createGrid = function () {
+Stage.prototype._createGrid = function (width, height) {
     var x = 0, y = 0;
-    var height = this.getSize().height;
-    var width = this.getSize().width;
+
+    var GRID_ELEMENT_SIZE = 1;
 
     var grid = new createjs.Shape();
     grid.graphics.beginFill('black');
 
     for (; x <= width; x += this._gridSize) {
         for (y = 0; y <= height; y += this._gridSize) {
-            grid.graphics.drawRect(x, y, 1, 1);
+            grid.graphics.drawRect(x, y, GRID_ELEMENT_SIZE, GRID_ELEMENT_SIZE);
         }
     }
 
@@ -127,6 +117,11 @@ Stage.prototype._createGrid = function () {
     grid.cache(0, 0, width + 1, height + 1);
 
     return grid;
+};
+
+Stage.prototype.drawGrid = function (width, height) {
+    var grid = this._createGrid(width, height);
+    this._updateGrid(grid);
 };
 
 Stage.prototype._mouseDownHandler = function (evt) {
