@@ -1,0 +1,11 @@
+{
+    "name": "croconate-map-editor",
+    "private": true,
+    "dependencies": {
+        "jquery": "~1.11.1",
+        "jquery-ui": "~1.11.2",
+        "ui-contextmenu": "~1.7.0",
+        "PreloadJS": "*",
+        "easeljs": "*"
+    }
+}

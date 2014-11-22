@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>HTML prototype</title>
+    <link rel="stylesheet" href="styles/style.css"/>
+    <link rel="stylesheet" href="styles/reset.css"/>
+
+    <!-- bower:js -->
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/jquery-ui/jquery-ui.js"></script>
+    <script src="bower_components/ui-contextmenu/jquery.ui-contextmenu.js"></script>
+    <script src="bower_components/PreloadJS/lib/preloadjs-0.4.1.combined.js"></script>
+    <script src="bower_components/easeljs/lib/easeljs-0.7.1.combined.js"></script>
+    <!-- endbower -->
+
+    <link rel="stylesheet" href="bower_components/jquery-ui/jquery-ui.css"/>
+    <link rel="stylesheet" href="bower_components/jquery-ui/jquery-ui.theme.css"/>
+
+    <script type="text/javascript" src="modules/Stage.js"></script>
+    <script type="text/javascript" src="modules/ContextMenu.js"></script>
+    <script type="text/javascript" src="modules/EditorElement.js"></script>
+    <script type="text/javascript" src="modules/Layer.js"></script>
+    <script type="text/javascript" src="modules/Canvas.js"></script>
+    <script type="text/javascript" src="modules/main.js"></script>
+</head>
+<body>
+<div class="content-wrapper">
+    <div class="middle-panel column">
+        <canvas id="main-canvas"></canvas>
+    </div>
+    <div class="left-panel column">
+        <ul></ul>
+    </div>
+    <div class="right-panel column">
+        <div>
+            Layers:
+            <ul class="layers-list"></ul>
+        </div>
+        <button class="add-new-layer">Add new layer</button>
+    </div>
+</div>
+
+</body>
+</html>
