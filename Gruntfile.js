@@ -321,7 +321,7 @@ module.exports = function (grunt) {
                     src: [
                         '*.{ico,png,txt}',
                         'images/{,*/}*.webp',
-                        'assets/**/*',
+                        'assets/processed/**/*',
                         '{,*/}*.html',
                         'styles/fonts/{,*/}*.*'
                     ]
@@ -340,7 +340,7 @@ module.exports = function (grunt) {
             assets: {
                 expand: true,
                 dot: true,
-                cwd: '<%= config.app %>/assets',
+                cwd: '<%= config.app %>/assets/processed/',
                 dest: '.tmp/assets/',
                 src: '**/*'
             }

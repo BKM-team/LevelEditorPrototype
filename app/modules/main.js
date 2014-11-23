@@ -12,95 +12,7 @@ $.fn.posRelativeTo = function (element) {
 };
 
 var Editor = {
-    assets: {
-        _loadingQueue: new createjs.LoadQueue(true),
-        _assetsList: {},
-        _appendAssetToList: function (asset) {
-            var category = asset.id.split('/')[0];
-            if (!this._assetsList[category]) {
-                this._assetsList[category] = [];
-            }
-
-            this._assetsList[category].push(asset.src);
-        },
-        _renderLoadedAssets: function () {
-            var ul = $('ul').eq(0);
-            $.each(this._assetsList, function (categoryName, category) {
-                var li = $('<li />', {
-                    'class': 'category',
-                    html: categoryName
-                });
-
-                var catUl = $('<ul />');
-                li.append(catUl);
-                category.forEach(function (item) {
-                    var li = $('<li />', {
-                        'class': 'item',
-                        html: $('<img />', {
-                            src: item
-                        })
-                    });
-
-                    catUl.append(li);
-                });
-
-                ul.append(li);
-            });
-        },
-        _installEventsOnRenderedAssets: function () {
-            $('li.item').draggable({
-                helper: function () {
-                    return $(this).find('img').clone();
-                },
-                cursorAt: {
-                    top: 10,
-                    left: 10
-                },
-                appendTo: 'body',
-                scroll: false
-            });
-        },
-        prepareManifest: function (assets) {
-            var manifest = [];
-
-            function readArrayRecursively(arr) {
-                arr.forEach(function (item) {
-                    if (item.contents) {
-                        readArrayRecursively(item.contents);
-                    } else {
-                        manifest.push(item);
-                    }
-                });
-            }
-
-            readArrayRecursively(assets);
-
-            return manifest;
-        },
-        loadAssets: function (assetsFile) {
-            $.ajax(assetsFile)
-                .done((function (response) {
-                    var manifest = this.prepareManifest(response.assets);
-                    this._loadingQueue.loadManifest({
-                        manifest: manifest,
-                        path: response.path
-                    });
-                }).bind(this));
-
-            this._loadingQueue.on('fileload', (function (evt) {
-                var item = evt.item;
-                if (item.type === createjs.LoadQueue.IMAGE) {
-                    this._appendAssetToList(item);
-                }
-            }).bind(this));
-
-            this._loadingQueue.on('complete', (function () {
-                this._renderLoadedAssets();
-                this._installEventsOnRenderedAssets();
-                this._loadingQueue.removeAllEventListeners();
-            }).bind(this));
-        }
-    },
+    assets: new AssetsList(),
     layers: {
         _appendNewLayer: function ($ul, layer, index) {
             var $input = $('<input />', {
@@ -189,7 +101,9 @@ var Editor = {
 };
 
 $(document).ready(function () {
-    Editor.assets.loadAssets('assets/assets.json');
+    Editor.assets.loadAssets('Platformer_In_The_Forest').then(function (assetsList) {
+        $('.left-panel').append(assetsList);
+    });
 
     var canvas = new Canvas($('#main-canvas'));
     Editor.canvas = canvas;
