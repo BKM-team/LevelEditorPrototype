@@ -222,3 +222,31 @@ Stage.prototype._swapLayers = function (l1, l2) {
 
     this._layersContainer.swapChildrenAt(l1, l2);
 };
+
+Stage.prototype.toJSON = function () {
+    var serializedObj = {
+        width: this._width % this._gridSize,
+        height: this._height % this._gridSize,
+        tileheight: this._gridSize,
+        tilewidth: this._gridSize,
+        layers: this._layers.map(function (layer) {
+            return layer.toJSON();
+        }),
+        tilesets: [],
+        orientation: "orthogonal",
+        //these below probably doesn't have any influence on Phaser, basing on its TilemapParser source
+        //leaving it here for compatibility
+        renderorder: "right-down",
+        version: 1
+    };
+
+    //currently only simple layers are supported
+    //it means each has the size equal to the stage and is placed on (0,0)
+    serializedObj.layers.forEach(function (layer) {
+        layer.x = layer.y = 0;
+        layer.width = serializedObj.width;
+        layer.height = serializedObj.height;
+    });
+
+    return serializedObj;
+};
