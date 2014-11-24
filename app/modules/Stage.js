@@ -41,7 +41,7 @@ Stage.prototype.addChild = function (child, positionRelativeToCanvas) {
 
     this.snapObjectToGrid(sprite);
 
-    this._layers[this._activeLayer].addChild(sprite);
+    this._layers[this._activeLayer].addChild(child);
 };
 
 Stage.prototype.snapObjectToGrid = function (object) {
