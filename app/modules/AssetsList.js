@@ -38,18 +38,14 @@ AssetsList.prototype._createAnimationsAndFrames = function (size) {
         return [x, y, size, size];
     }
 
-    function Animation(frameIndex) {
-        return [frameIndex];
-    }
-
     var frames = [];
     var animations = {};
 
-    this._assets.forEach(function (asset) {
+    this._assets.forEach(function (asset, frameId) {
         var frame = new Frame(asset.coords.x, asset.coords.y);
         frames.push(frame);
 
-        animations[asset.id] = new Animation(frames.length - 1);
+        animations[asset.id] = [frameId];
     });
 
     return {
@@ -60,10 +56,14 @@ AssetsList.prototype._createAnimationsAndFrames = function (size) {
 
 AssetsList.prototype._createAssetsListElement = function () {
     var $ul = $('<ul />');
-    this._assets.forEach(function (asset) {
+
+    this._assets.forEach(function (asset, frameId) {
+        var $frame = $(createjs.SpriteSheetUtils.extractFrame(this._spritesheet, asset.id));
+        $frame.attr('data-frame-id', frameId);
+
         var $li = $('<li />', {
             'class': 'item',
-            html: createjs.SpriteSheetUtils.extractFrame(this._spritesheet, asset.id)
+            html: $frame
         });
 
         $ul.append($li);

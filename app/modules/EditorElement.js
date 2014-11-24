@@ -1,7 +1,8 @@
 'use strict';
 
-var EditorElement = function (imageSrc, parentStage) {
-    this._sprite = new createjs.Bitmap(imageSrc);
+var EditorElement = function ($image, parentStage) {
+    this._frameId = parseInt($image.attr('data-frame-id'), 10);
+    this._sprite = new createjs.Bitmap($image.get(0));
 
     this._sprite.on('mousedown', EditorElement._mouseDownHandler, this);
     this._sprite.on('pressup', EditorElement._mouseUpHandler, this);
@@ -89,4 +90,25 @@ EditorElement._mouseUpHandler = function () {
 
 EditorElement.prototype.getSprite = function () {
     return this._sprite;
+};
+
+EditorElement.prototype.getFrameId = function () {
+    return this._frameId;
+};
+
+EditorElement.prototype.toJSON = function () {
+    var spriteBounds = this._sprite.getBounds();
+    return {
+        gid: this.getFrameId(),
+        width: spriteBounds.width,
+        height: spriteBounds.height,
+        x: this.x,
+        y: this.y,
+        //TODO: support customizing objects at least to below properties
+        name: '',
+        properties: {},
+        type: '',
+        visible: true,
+        rotation: 0
+    }
 };

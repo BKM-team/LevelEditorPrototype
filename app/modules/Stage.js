@@ -225,14 +225,13 @@ Stage.prototype._swapLayers = function (l1, l2) {
 
 Stage.prototype.toJSON = function () {
     var serializedObj = {
-        width: this._width % this._gridSize,
-        height: this._height % this._gridSize,
+        width: this._width / this._gridSize,
+        height: this._height / this._gridSize,
         tileheight: this._gridSize,
         tilewidth: this._gridSize,
         layers: this._layers.map(function (layer) {
             return layer.toJSON();
         }),
-        tilesets: [],
         orientation: "orthogonal",
         //these below probably doesn't have any influence on Phaser, basing on its TilemapParser source
         //leaving it here for compatibility
