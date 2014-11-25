@@ -11,6 +11,9 @@ var Layer = function (name) {
     this.show();
 };
 
+Layer.TILE_LAYER = 0;
+Layer.OBJECT_LAYER = 1;
+
 Layer._visibleGetSet = {
     get: function () {
         return this._spritesContainer.visible;
@@ -44,6 +47,10 @@ Layer.prototype.getVisibility = function () {
     return this._visible;
 };
 
+Layer.prototype.getLayerType = function () {
+    return this._type;
+};
+
 Layer.prototype.addChild = function (child) {
     this._elements.push(child);
     this._spritesContainer.addChild(child.getSprite());
@@ -55,17 +62,10 @@ Layer.prototype.toJSON = function () {
         visible: this.getVisibility(),
         //TODO: support opacity change
         opacity: 1,
-        //currently tile layers are not supported
-        type: "objectgroup",
-        //TODO: add support for moving objects in z axis
-        draworder: "index",
         //TODO: add support for layer position and size. Currently these will be overwritten by Stage
         x: null,
         y: null,
         width: null,
-        height: null,
-        objects: this._elements.map(function (element) {
-            return element.toJSON();
-        })
+        height: null
     }
 };
