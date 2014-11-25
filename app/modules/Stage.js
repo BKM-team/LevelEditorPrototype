@@ -1,6 +1,6 @@
 'use strict';
 
-var Stage = function (stageElement, xTileSize, yTileSize) {
+var Stage = function (stageElement, xTileCount, yTileCount) {
     this._stage = new createjs.Stage(stageElement);
     this._stage.enableMouseOver(10);
     createjs.Ticker.on('tick', this._tickHandler, this);
@@ -8,20 +8,20 @@ var Stage = function (stageElement, xTileSize, yTileSize) {
     this._gridSize = Stage._GRID_SIZE;
 
     Object.defineProperties(this, {
-        _xTileSize: Stage._xTileSizeGetSet,
-        _yTileSize: Stage._yTileSizeGetSet
+        _xTileCount: Stage._xTileCountGetSet,
+        _yTileCount: Stage._yTileCountGetSet
     });
 
     this._container = new createjs.Container();
     this._stage.addChild(this._container);
 
-    this.setSize(xTileSize, yTileSize);
+    this.setSize(xTileCount, yTileCount);
 
     this._layers = [];
     this._layersContainer = new createjs.Container();
     this.addLayer(Stage._DEFAULT_BACKGROUND_LAYER_NAME, Stage._DEFAULT_BACKGROUND_LAYER_TYPE);
     this._activeLayer = 0;
-    this._container.addChildAt(this._layersContainer, Stage._LAYER_CONTAINER_INDEX);
+    this._container.addChildAt(this._layersContainer, Stage._LAYER_CONTAINER_INDEX_ON_CONTAINER);
 
     this._stage.on('mousedown', this._mouseDownHandler, this);
     this._stage.on('pressup', this._mouseUpHandler, this);
@@ -29,29 +29,27 @@ var Stage = function (stageElement, xTileSize, yTileSize) {
     this._dragging = {};
 };
 
-//TODO: someday allow user to change the grid size again
-Stage._GRID_SIZE = 32;
 Stage._DEFAULT_BACKGROUND_LAYER_NAME = 'background';
 Stage._DEFAULT_BACKGROUND_LAYER_TYPE = Layer.TILE_LAYER;
-Stage._BACKGROUND_INDEX = 0;
-Stage._LAYER_CONTAINER_INDEX = 1;
-Stage._GRID_INDEX = 2;
+Stage._BACKGROUND_INDEX_ON_CONTAINER = 0;
+Stage._LAYER_CONTAINER_INDEX_ON_CONTAINER = 1;
+Stage._GRID_INDEX_ON_STAGE = 1;
 
-Stage._xTileSizeGetSet = {
+Stage._xTileCountGetSet = {
     get: function () {
         return this._width / this._gridSize;
     },
-    set: function (xTileSize) {
-        this._width = xTileSize * this._gridSize;
+    set: function (xTileCount) {
+        this._width = xTileCount * this._gridSize;
     }
 };
 
-Stage._yTileSizeGetSet = {
+Stage._yTileCountGetSet = {
     get: function () {
         return this._height / this._gridSize;
     },
-    set: function (yTileSize) {
-        this._height = yTileSize * this._gridSize;
+    set: function (yTileCount) {
+        this._height = yTileCount * this._gridSize;
     }
 };
 
@@ -87,9 +85,9 @@ Stage.prototype.snapObjectToGrid = function (object) {
     }
 };
 
-Stage.prototype.setSize = function (xTileSize, yTileSize) {
-    this._xTileSize = xTileSize;
-    this._yTileSize = yTileSize;
+Stage.prototype.setSize = function (xTileCount, yTileCount) {
+    this._xTileCount = xTileCount;
+    this._yTileCount = yTileCount;
 
     var bg = this._createBackground();
     this._updateBackgroundShape(bg);
@@ -102,13 +100,13 @@ Stage.prototype.getGridSize = function () {
 };
 
 Stage.prototype._updateBackgroundShape = function (newBackground) {
-    this._container.removeChildAt(0);
-    this._container.addChildAt(newBackground, 0);
+    this._container.removeChildAt(Stage._BACKGROUND_INDEX_ON_CONTAINER);
+    this._container.addChildAt(newBackground, Stage._BACKGROUND_INDEX_ON_CONTAINER);
 };
 
 Stage.prototype._updateGrid = function (newGrid) {
-    this._stage.removeChildAt(1);
-    this._stage.addChildAt(newGrid, 1);
+    this._stage.removeChildAt(Stage._GRID_INDEX_ON_STAGE);
+    this._stage.addChildAt(newGrid, Stage._GRID_INDEX_ON_STAGE);
 };
 
 Stage.prototype._createBackground = function () {
@@ -188,7 +186,7 @@ Stage.prototype.addLayer = function (name, type) {
 
     switch(type) {
         case Layer.TILE_LAYER:
-            newLayer = new TileLayer(name, this._xTileSize * this._yTileSize);
+            newLayer = new TileLayer(name, this._xTileCount * this._yTileCount);
             break;
 
         case Layer.OBJECT_LAYER:
@@ -265,8 +263,8 @@ Stage.prototype._swapLayers = function (l1, l2) {
 
 Stage.prototype.toJSON = function () {
     var serializedObj = {
-        width: this._width / this._gridSize,
-        height: this._height / this._gridSize,
+        width: this._xTileCount,
+        height: this._yTileCount,
         tileheight: this._gridSize,
         tilewidth: this._gridSize,
         layers: this._layers.map(function (layer) {
