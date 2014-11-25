@@ -1,23 +1,25 @@
 'use strict';
 
-var Stage = function (stageElement) {
+var Stage = function (stageElement, xTileSize, yTileSize) {
     this._stage = new createjs.Stage(stageElement);
     this._stage.enableMouseOver(10);
     createjs.Ticker.on('tick', this._tickHandler, this);
 
     this._gridSize = Stage._GRID_SIZE;
 
+    Object.defineProperties(this, {
+        _xTileSize: Stage._xTileSizeGetSet,
+        _yTileSize: Stage._yTileSizeGetSet
+    });
+
     this._container = new createjs.Container();
     this._stage.addChild(this._container);
 
-    var backgroundPlaceholder = new createjs.Shape();
-    this._container.addChildAt(backgroundPlaceholder, Stage._BACKGROUND_INDEX);
+    this.setSize(xTileSize, yTileSize);
 
     this._layers = [];
     this._layersContainer = new createjs.Container();
-    this._layersContainer.x = 0;
-    this._layersContainer.y = 0;
-    this.addLayer(Stage._DEFAULT_BACKGROUND_LAYER_NAME);
+    this.addLayer(Stage._DEFAULT_BACKGROUND_LAYER_NAME, Stage._DEFAULT_BACKGROUND_LAYER_TYPE);
     this._activeLayer = 0;
     this._container.addChildAt(this._layersContainer, Stage._LAYER_CONTAINER_INDEX);
 
@@ -30,18 +32,43 @@ var Stage = function (stageElement) {
 //TODO: someday allow user to change the grid size again
 Stage._GRID_SIZE = 32;
 Stage._DEFAULT_BACKGROUND_LAYER_NAME = 'background';
+Stage._DEFAULT_BACKGROUND_LAYER_TYPE = Layer.TILE_LAYER;
 Stage._BACKGROUND_INDEX = 0;
 Stage._LAYER_CONTAINER_INDEX = 1;
 Stage._GRID_INDEX = 2;
+
+Stage._xTileSizeGetSet = {
+    get: function () {
+        return this._width / this._gridSize;
+    },
+    set: function (xTileSize) {
+        this._width = xTileSize * this._gridSize;
+    }
+};
+
+Stage._yTileSizeGetSet = {
+    get: function () {
+        return this._height / this._gridSize;
+    },
+    set: function (yTileSize) {
+        this._height = yTileSize * this._gridSize;
+    }
+};
 
 Stage.prototype.addChild = function (child, positionRelativeToCanvas) {
     var sprite = child.getSprite();
     sprite.x = positionRelativeToCanvas.left - this._container.x;
     sprite.y = positionRelativeToCanvas.top - this._container.y;
-
     this.snapObjectToGrid(sprite);
 
-    this._layers[this._activeLayer].addChild(child);
+    if(this._layers[this._activeLayer] instanceof ObjectLayer) {
+        this._layers[this._activeLayer].addChild(child);
+    } else {
+        var spriteColumn = sprite.x / this._tileSize;
+        var spriteRow = sprite.y / this._tileSize;
+        var tileIndex = spriteColumn + spriteRow * this._image.width / this._tileSize;
+        this._layers[this._activeLayer].addChild(child, tileIndex);
+    }
 };
 
 Stage.prototype.snapObjectToGrid = function (object) {
@@ -60,9 +87,9 @@ Stage.prototype.snapObjectToGrid = function (object) {
     }
 };
 
-Stage.prototype.setSize = function (xTilesCount, yTilesCount) {
-    this._width = xTilesCount * this._gridSize;
-    this._height = yTilesCount * this._gridSize;
+Stage.prototype.setSize = function (xTileSize, yTileSize) {
+    this._xTileSize = xTileSize;
+    this._yTileSize = yTileSize;
 
     var bg = this._createBackground();
     this._updateBackgroundShape(bg);
@@ -156,9 +183,21 @@ Stage.prototype.snapToGrid = function () {
     this.snapObjectToGrid(this._container);
 };
 
-Stage.prototype.addLayer = function (name) {
-    this._layers.push(new Layer(name));
-    this._layersContainer.addChild(this._layers[this._layers.length - 1].getContainer());
+Stage.prototype.addLayer = function (name, type) {
+    var newLayer;
+
+    switch(type) {
+        case Layer.TILE_LAYER:
+            newLayer = new TileLayer(name, this._xTileSize * this._yTileSize);
+            break;
+
+        case Layer.OBJECT_LAYER:
+            newLayer = new ObjectLayer(name);
+            break;
+    }
+
+    this._layers.push(newLayer);
+    this._layersContainer.addChild(newLayer.getContainer());
 };
 
 Stage.prototype.getLayersList = function () {
@@ -168,7 +207,8 @@ Stage.prototype.getLayersList = function () {
             active: index === this._activeLayer,
             visible: layer.getVisibility(),
             isFirst: index === 0,
-            isLast: index === this._layers.length - 1
+            isLast: index === this._layers.length - 1,
+            type: layer.getLayerType()
         } ;
     }, this);
 };

@@ -1,6 +1,6 @@
 'use strict';
 
-var Canvas = function ($canvas) {
+var Canvas = function ($canvas, stageXTilesCount, stageYTilesCount) {
     this._$canvas = $canvas;
     this._$canvas.on('contextmenu', function (evt) {
         evt.preventDefault();
@@ -8,7 +8,7 @@ var Canvas = function ($canvas) {
     });
 
     this._contextMenu = new ContextMenu();
-    this.stage = new Stage(this._$canvas.get(0));
+    this.stage = new Stage(this._$canvas.get(0), stageXTilesCount, stageYTilesCount);
 
     this._$canvas.droppable({
         tolerance: 'fit',

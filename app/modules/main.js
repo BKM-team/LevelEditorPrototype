@@ -58,6 +58,18 @@ var Editor = {
                 $li.append($moveDown);
             }
 
+            var $layerType = $('<span />');
+            switch(layer.type) {
+                case Layer.TILE_LAYER:
+                    $layerType.text(' (tile)');
+                    break;
+
+                case Layer.OBJECT_LAYER:
+                    $layerType.text(' (object)');
+                    break;
+            }
+            $li.append($layerType);
+
             $ul.append($li);
         },
         _changeActiveLayer: function (index) {
@@ -109,16 +121,15 @@ var Editor = {
 };
 
 $(document).ready(function () {
-    Editor.assetsList.loadAssets('Platformer_In_The_Forest').then(function (assetsList) {
+    Editor.assetsList.loadAssets('super_mario').then(function (assetsList) {
         $('.left-panel').append(assetsList);
     });
 
-    var canvas = new Canvas($('#main-canvas'));
+    var canvas = new Canvas($('#main-canvas'), 10, 10);
     Editor.canvas = canvas;
     Editor.stage = canvas.stage;
 
     Editor.canvas.setSizeToParent();
-    Editor.stage.setSize(20, 20);
 
     $('.add-new-layer').on('click', function () {
         var layerName = prompt('Type new layer name:');
