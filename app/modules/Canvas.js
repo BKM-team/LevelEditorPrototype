@@ -47,7 +47,7 @@ Canvas.prototype.setSizeToParent = function () {
 //};
 
 Canvas.prototype._dropHandler = function (event, ui) {
-    var element = new EditorElement(ui.helper.eq(0).attr('src'), this.stage);
+    var element = new EditorElement(ui.helper.eq(0), this.stage);
     var position = ui.helper.posRelativeTo(this._$canvas);
 
     this.stage.addChild(element, position);

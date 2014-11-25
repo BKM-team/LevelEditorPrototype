@@ -1,26 +1,27 @@
 'use strict';
 
 var Layer = function (name) {
-    this._container = new createjs.Container();
+    this._spritesContainer = new createjs.Container();
+    this._elements = [];
     this.setName(name);
     Object.defineProperty(this, '_visible', Layer._visibleGetSet);
-    this._container.x = 0;
-    this._container.y = 0;
+    this._spritesContainer.x = 0;
+    this._spritesContainer.y = 0;
 
     this.show();
 };
 
 Layer._visibleGetSet = {
     get: function () {
-        return this._container.visible;
+        return this._spritesContainer.visible;
     },
     set: function (val) {
-        this._container.visible = val;
+        this._spritesContainer.visible = val;
     }
 };
 
 Layer.prototype.getContainer = function () {
-    return this._container;
+    return this._spritesContainer;
 };
 
 Layer.prototype.getName = function () {
@@ -44,5 +45,27 @@ Layer.prototype.getVisibility = function () {
 };
 
 Layer.prototype.addChild = function (child) {
-    this._container.addChild(child);
+    this._elements.push(child);
+    this._spritesContainer.addChild(child.getSprite());
+};
+
+Layer.prototype.toJSON = function () {
+    return {
+        name: this.getName(),
+        visible: this.getVisibility(),
+        //TODO: support opacity change
+        opacity: 1,
+        //currently tile layers are not supported
+        type: "objectgroup",
+        //TODO: add support for moving objects in z axis
+        draworder: "index",
+        //TODO: add support for layer position and size. Currently these will be overwritten by Stage
+        x: null,
+        y: null,
+        width: null,
+        height: null,
+        objects: this._elements.map(function (element) {
+            return element.toJSON();
+        })
+    }
 };
