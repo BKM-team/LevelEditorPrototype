@@ -99,8 +99,8 @@ var Editor = {
             var layers = Editor.stage.getLayersList();
             layers.forEach(this._appendNewLayer.bind(this, $ul));
         },
-        addNewLayer: function (name) {
-            Editor.stage.addLayer(name);
+        addNewLayer: function (name, type) {
+            Editor.stage.addLayer(name, type);
             this.updateLayersList();
         },
         setActiveLayer: function (index) {
@@ -132,12 +132,26 @@ $(document).ready(function () {
     Editor.canvas.setSizeToParent();
 
     $('.add-new-layer').on('click', function () {
-        var layerName = prompt('Type new layer name:');
-        Editor.layers.addNewLayer(layerName);
+        $('.add-layer-dialog').dialog('open');
+    });
+
+    $('.add-layer-dialog').dialog({
+        autoOpen: false,
+        modal: true,
+        draggable: false,
+        buttons: {
+            'Add': function () {
+                var $this = $(this);
+                var layerName = $this.find('input').val();
+                var layerType = parseInt($this.find('select').val(), 10);
+                Editor.layers.addNewLayer(layerName, layerType);
+                $this.find('form').get(0).reset();
+                $this.dialog('close');
+            }
+        }
     });
 
     Editor.layers.updateLayersList();
-
     createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
     createjs.Ticker.setFPS(60);
 });
