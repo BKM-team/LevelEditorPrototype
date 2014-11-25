@@ -58,7 +58,7 @@ Layer.prototype.toJSON = function () {
         //currently tile layers are not supported
         type: "objectgroup",
         //TODO: add support for moving objects in z axis
-        draworder: "manual",
+        draworder: "index",
         //TODO: add support for layer position and size. Currently these will be overwritten by Stage
         x: null,
         y: null,

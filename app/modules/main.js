@@ -12,7 +12,7 @@ $.fn.posRelativeTo = function (element) {
 };
 
 var Editor = {
-    assets: new AssetsList(),
+    assetsList: new AssetsList(),
     layers: {
         _appendNewLayer: function ($ul, layer, index) {
             var $input = $('<input />', {
@@ -97,11 +97,19 @@ var Editor = {
         }
     },
     canvas: null,
-    stage: null
+    stage: null,
+    serialization: {
+        export: function () {
+            var serializedStage = Editor.stage.toJSON();
+            serializedStage.tilesets = Editor.assetsList.toJSON();
+
+            return serializedStage;
+        }
+    }
 };
 
 $(document).ready(function () {
-    Editor.assets.loadAssets('Platformer_In_The_Forest').then(function (assetsList) {
+    Editor.assetsList.loadAssets('Platformer_In_The_Forest').then(function (assetsList) {
         $('.left-panel').append(assetsList);
     });
 
