@@ -23,17 +23,6 @@ var Canvas = function ($canvas, stageXTilesCount, stageYTilesCount, gridSize) {
     });
 };
 
-Canvas.prototype.setSizeToParent = function () {
-    var $canvasParent = this._$canvas.parent();
-    var $canvasParentDimensions = {
-        width: $canvasParent.width(),
-        height: $canvasParent.height()
-    };
-
-    this._$canvas.attr('width', $canvasParentDimensions.width);
-    this._$canvas.attr('height', $canvasParentDimensions.height);
-};
-
 
 //Canvas.prototype.showContextMenu = function (editorElement, menuItems, mouseDownEvent) {
 //    var canvasOffset = this._$canvas.offset();
@@ -46,9 +35,8 @@ Canvas.prototype.setSizeToParent = function () {
 //};
 
 Canvas.prototype._dropHandler = function (event, ui) {
-    var element = new EditorElement(ui.helper.eq(0), this.stage);
     var position = ui.helper.posRelativeTo(this._$canvas);
 
-    this.stage.addChild(element, position);
+    this.stage.addChild(ui.helper.eq(0), position);
     ui.helper.remove();
 };

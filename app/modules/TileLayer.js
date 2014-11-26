@@ -18,7 +18,7 @@ Object.defineProperty(TileLayer.prototype, '_type', {
 });
 
 TileLayer.prototype.addChild = function (child, tileIndex) {
-    this._elements[tileIndex] = child.getFrameId();
+    this._elements[tileIndex] = child;
     this._spritesContainer.addChildAt(child.getSprite(), tileIndex);
     this._spritesContainer.removeChildAt(tileIndex + 1);
 };

@@ -58,19 +58,34 @@ Stage._yTileCountGetSet = {
     }
 };
 
-Stage.prototype.addChild = function (child, positionRelativeToCanvas) {
-    var sprite = child.getSprite();
-    sprite.x = positionRelativeToCanvas.left - this._container.x;
-    sprite.y = positionRelativeToCanvas.top - this._container.y;
-    this.snapObjectToGrid(sprite);
+Stage.prototype.addChild = function ($image, positionRelativeToCanvas) {
+    var activeLayer = this._getActiveLayerObject(),
+        child;
 
-    if(this._layers[this._activeLayer] instanceof ObjectLayer) {
-        this._layers[this._activeLayer].addChild(child);
-    } else {
-        var spriteColumn = sprite.x / this._gridSize;
-        var spriteRow = sprite.y / this._gridSize;
-        var tileIndex = spriteColumn + spriteRow * this._width / this._gridSize;
-        this._layers[this._activeLayer].addChild(child, tileIndex);
+    switch(activeLayer.getLayerType()) {
+        case Layer.TILE_LAYER:
+            child = new TileElement($image);
+
+            child.x = positionRelativeToCanvas.left;
+            child.y = positionRelativeToCanvas.top;
+            this.snapObjectToGrid(child);
+
+            var spriteColumn = child.x / this._gridSize;
+            var spriteRow = child.y / this._gridSize;
+            var tileIndex = spriteColumn + spriteRow * this._width / this._gridSize;
+
+            activeLayer.addChild(child, tileIndex);
+            break;
+
+        case Layer.OBJECT_LAYER:
+            child = new ObjectElement($image, this);
+
+            activeLayer.addChild(child);
+
+            child.x = positionRelativeToCanvas.left;
+            child.y = positionRelativeToCanvas.top;
+            this.snapObjectToGrid(child);
+            break;
     }
 };
 
@@ -158,10 +173,6 @@ Stage.prototype._tickHandler = function () {
     this._stage.update();
 };
 
-Stage.prototype.snapToGrid = function () {
-    this.snapObjectToGrid(this._container);
-};
-
 Stage.prototype.addLayer = function (name, type) {
     var newLayer;
 
@@ -194,16 +205,10 @@ Stage.prototype.getLayersList = function () {
 
 Stage.prototype.setActiveLayer = function (index) {
     this._activeLayer = index;
-    switch (this._layers[this._activeLayer].getLayerType()) {
-        case Layer.TILE_LAYER:
-            this._brush = 0;
-            this.setActiveTool(Stage.TOOL.BRUSH);
-            break;
+};
 
-        case Layer.OBJECT_LAYER:
-            this.setActiveTool(Stage.TOOL.DRAG);
-            break;
-    }
+Stage.prototype._getActiveLayerObject = function () {
+    return this._layers[this._activeLayer];
 };
 
 Stage.prototype.changeLayerVisibility = function (index, visibility) {
