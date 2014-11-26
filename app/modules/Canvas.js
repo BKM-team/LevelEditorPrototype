@@ -1,14 +1,17 @@
 'use strict';
 
-var Canvas = function ($canvas, stageXTilesCount, stageYTilesCount) {
+var Canvas = function ($canvas, stageXTilesCount, stageYTilesCount, gridSize) {
     this._$canvas = $canvas;
     this._$canvas.on('contextmenu', function (evt) {
         evt.preventDefault();
         evt.stopPropagation();
     });
 
+    this._$canvas.attr('width', stageXTilesCount * gridSize);
+    this._$canvas.attr('height', stageYTilesCount * gridSize);
+
     this._contextMenu = new ContextMenu();
-    this.stage = new Stage(this._$canvas.get(0), stageXTilesCount, stageYTilesCount);
+    this.stage = new Stage(this._$canvas.get(0), stageXTilesCount, stageYTilesCount, gridSize);
 
     this._$canvas.droppable({
         tolerance: 'fit',
@@ -18,8 +21,6 @@ var Canvas = function ($canvas, stageXTilesCount, stageYTilesCount) {
             ui.helper.css('opacity', '0.5');
         }
     });
-
-    $(window).on('resize', this._resizeHandler.bind(this));
 };
 
 Canvas.prototype.setSizeToParent = function () {
@@ -31,8 +32,6 @@ Canvas.prototype.setSizeToParent = function () {
 
     this._$canvas.attr('width', $canvasParentDimensions.width);
     this._$canvas.attr('height', $canvasParentDimensions.height);
-
-    this.stage.drawGrid($canvasParentDimensions.width, $canvasParentDimensions.height);
 };
 
 
@@ -52,8 +51,4 @@ Canvas.prototype._dropHandler = function (event, ui) {
 
     this.stage.addChild(element, position);
     ui.helper.remove();
-};
-
-Canvas.prototype._resizeHandler = function () {
-    this.setSizeToParent();
 };

@@ -125,11 +125,9 @@ $(document).ready(function () {
         $('.left-panel').append(assetsList);
     });
 
-    var canvas = new Canvas($('#main-canvas'), 10, 10);
+    var canvas = new Canvas($('#main-canvas'), 40, 16, 32);
     Editor.canvas = canvas;
     Editor.stage = canvas.stage;
-
-    Editor.canvas.setSizeToParent();
 
     $('.add-new-layer').on('click', function () {
         $('.add-layer-dialog').dialog('open');

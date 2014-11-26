@@ -1,11 +1,11 @@
 'use strict';
 
-var Stage = function (stageElement, xTileCount, yTileCount) {
+var Stage = function (stageElement, xTileCount, yTileCount, gridSize) {
     this._stage = new createjs.Stage(stageElement);
     this._stage.enableMouseOver(10);
     createjs.Ticker.on('tick', this._tickHandler, this);
 
-    this._gridSize = Stage._GRID_SIZE;
+    this._gridSize = gridSize;
 
     Object.defineProperties(this, {
         _xTileCount: Stage._xTileCountGetSet,
@@ -16,10 +16,11 @@ var Stage = function (stageElement, xTileCount, yTileCount) {
     this._stage.addChild(this._container);
 
     this.setSize(xTileCount, yTileCount);
+    this.drawGrid(this._width, this._height);
 
     this._layers = [];
     this._layersContainer = new createjs.Container();
-    this.addLayer(Stage._DEFAULT_BACKGROUND_LAYER_NAME, Stage._DEFAULT_BACKGROUND_LAYER_TYPE);
+    this.addLayer(Stage._DEFAULT_BACKGROUND_LAYER.NAME, Stage._DEFAULT_BACKGROUND_LAYER.TYPE);
     this._activeLayer = 0;
     this._container.addChildAt(this._layersContainer, Stage._LAYER_CONTAINER_INDEX_ON_CONTAINER);
 
@@ -29,8 +30,10 @@ var Stage = function (stageElement, xTileCount, yTileCount) {
     this._dragging = {};
 };
 
-Stage._DEFAULT_BACKGROUND_LAYER_NAME = 'background';
-Stage._DEFAULT_BACKGROUND_LAYER_TYPE = Layer.TILE_LAYER;
+Stage._DEFAULT_BACKGROUND_LAYER = {
+    NAME: 'background',
+    TYPE: Layer.TILE_LAYER
+};
 Stage._BACKGROUND_INDEX_ON_CONTAINER = 0;
 Stage._LAYER_CONTAINER_INDEX_ON_CONTAINER = 1;
 Stage._GRID_INDEX_ON_STAGE = 1;
@@ -62,9 +65,9 @@ Stage.prototype.addChild = function (child, positionRelativeToCanvas) {
     if(this._layers[this._activeLayer] instanceof ObjectLayer) {
         this._layers[this._activeLayer].addChild(child);
     } else {
-        var spriteColumn = sprite.x / this._tileSize;
-        var spriteRow = sprite.y / this._tileSize;
-        var tileIndex = spriteColumn + spriteRow * this._image.width / this._tileSize;
+        var spriteColumn = sprite.x / this._gridSize;
+        var spriteRow = sprite.y / this._gridSize;
+        var tileIndex = spriteColumn + spriteRow * this._width / this._gridSize;
         this._layers[this._activeLayer].addChild(child, tileIndex);
     }
 };

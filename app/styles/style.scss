@@ -73,11 +73,13 @@ img.drag-helper {
 }
 
 .middle-panel {
+    background-color: #888;
     overflow: hidden;
     @include size(100%, 100%);
 
-    canvas {
-        background-color: #888;
+    .canvas-wrapper {
+        overflow: scroll;
+        @include size(100%, 100%);
     }
 }
 
@@ -112,4 +114,8 @@ img.drag-helper {
     position: absolute;
 
     @include size(1px, 1px);
+}
+
+.dialog {
+    display: none;
 }
