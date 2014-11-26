@@ -149,6 +149,10 @@ $(document).ready(function () {
         }
     });
 
+    $('input[name="tool"]').on('change', function () {
+        Editor.stage.setActiveTool(parseInt($(this).val(), 10));
+    });
+
     Editor.layers.updateLayersList();
     createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
     createjs.Ticker.setFPS(60);

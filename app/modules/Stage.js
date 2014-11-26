@@ -24,10 +24,7 @@ var Stage = function (stageElement, xTileCount, yTileCount, gridSize) {
     this._activeLayer = 0;
     this._container.addChildAt(this._layersContainer, Stage._LAYER_CONTAINER_INDEX_ON_CONTAINER);
 
-    this._stage.on('mousedown', this._mouseDownHandler, this);
-    this._stage.on('pressup', this._mouseUpHandler, this);
-    this._stage.on('pressmove', this._mouseMoveHandler, this);
-    this._dragging = {};
+    this._activeTool = Stage._DEFAULT_ACTIVE_TOOL;
 };
 
 Stage._DEFAULT_BACKGROUND_LAYER = {
@@ -37,6 +34,11 @@ Stage._DEFAULT_BACKGROUND_LAYER = {
 Stage._BACKGROUND_INDEX_ON_CONTAINER = 0;
 Stage._LAYER_CONTAINER_INDEX_ON_CONTAINER = 1;
 Stage._GRID_INDEX_ON_STAGE = 1;
+Stage.TOOL = {
+    BRUSH: 0,
+    RUBBER: 1
+};
+Stage._DEFAULT_ACTIVE_TOOL = Stage.TOOL.BRUSH;
 
 Stage._xTileCountGetSet = {
     get: function () {
@@ -152,30 +154,6 @@ Stage.prototype.drawGrid = function (width, height) {
     this._updateGrid(grid);
 };
 
-Stage.prototype._mouseDownHandler = function (evt) {
-    this._dragging.isElementDragged = true;
-    this._dragging.startPosition = {
-        x: this._container.x - evt.stageX,
-        y: this._container.y - evt.stageY
-    };
-    this._stage.cursor = 'move';
-};
-
-Stage.prototype._mouseMoveHandler = function (evt) {
-    if (this._dragging.isElementDragged) {
-        this._container.x = evt.stageX + this._dragging.startPosition.x;
-        this._container.y = evt.stageY + this._dragging.startPosition.y;
-        this.snapToGrid();
-    }
-};
-
-Stage.prototype._mouseUpHandler = function () {
-    if (this._dragging.isElementDragged) {
-        this._dragging.isElementDragged = false;
-        this._stage.cursor = null;
-    }
-};
-
 Stage.prototype._tickHandler = function () {
     this._stage.update();
 };
@@ -216,6 +194,16 @@ Stage.prototype.getLayersList = function () {
 
 Stage.prototype.setActiveLayer = function (index) {
     this._activeLayer = index;
+    switch (this._layers[this._activeLayer].getLayerType()) {
+        case Layer.TILE_LAYER:
+            this._brush = 0;
+            this.setActiveTool(Stage.TOOL.BRUSH);
+            break;
+
+        case Layer.OBJECT_LAYER:
+            this.setActiveTool(Stage.TOOL.DRAG);
+            break;
+    }
 };
 
 Stage.prototype.changeLayerVisibility = function (index, visibility) {
@@ -289,4 +277,12 @@ Stage.prototype.toJSON = function () {
     });
 
     return serializedObj;
+};
+
+Stage.prototype.setActiveTool = function (tool) {
+    this._activeTool = tool;
+};
+
+Stage.prototype.getActiveTool = function () {
+    return this._activeTool;
 };
