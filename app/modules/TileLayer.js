@@ -6,6 +6,7 @@ var TileLayer = function (name, layerElementsCount) {
     this.__base.constructor.call(this, name);
     for(var i = 0; i < layerElementsCount; i++) {
         this._elements.push(NO_ASSET_GID);
+        this._spritesContainer.addChild(new createjs.DisplayObject());
     }
 };
 
@@ -18,7 +19,8 @@ Object.defineProperty(TileLayer.prototype, '_type', {
 
 TileLayer.prototype.addChild = function (child, tileIndex) {
     this._elements[tileIndex] = child.getFrameId();
-    this._spritesContainer.addChild(child.getSprite());
+    this._spritesContainer.addChildAt(child.getSprite(), tileIndex);
+    this._spritesContainer.removeChildAt(tileIndex + 1);
 };
 
 TileLayer.prototype.toJSON = function () {
