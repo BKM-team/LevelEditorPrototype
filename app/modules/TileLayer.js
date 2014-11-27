@@ -5,7 +5,7 @@ var TileLayer = function (name, layerElementsCount) {
     var emptyChild;
 
     for(var i = 0; i < layerElementsCount; i++) {
-        emptyChild = new TileElement();
+        emptyChild = TileLayer._getEmptyChild();
         this._elements.push(emptyChild);
         this._spritesContainer.addChild(emptyChild.getSprite());
     }
@@ -18,10 +18,18 @@ Object.defineProperty(TileLayer.prototype, '_type', {
     value: Layer.TILE_LAYER
 });
 
+TileLayer._getEmptyChild = function () {
+  return new TileElement();
+};
+
 TileLayer.prototype.addChild = function (child, tileIndex) {
     this._elements[tileIndex] = child;
     this._spritesContainer.addChildAt(child.getSprite(), tileIndex);
     this._spritesContainer.removeChildAt(tileIndex + 1);
+};
+
+TileLayer.prototype.removeChild = function (tileIndex) {
+    this.addChild(TileLayer._getEmptyChild(), tileIndex);
 };
 
 TileLayer.prototype.toJSON = function () {

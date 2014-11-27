@@ -67,11 +67,19 @@ Stage._yTileCountGetSet = {
 };
 
 Stage.prototype._mouseDownHandler = function () {
+    if (this._getActiveLayerObject().getLayerType() !== Layer.TILE_LAYER) {
+        return;
+    }
+
     this._drawing.previousTileIndex = null;
     this._stage.cursor = 'pointer';
 };
 
 Stage.prototype._mouseUpHandler = function () {
+    if (this._getActiveLayerObject().getLayerType() !== Layer.TILE_LAYER) {
+        return;
+    }
+
     this._stage.cursor = null;
 };
 
@@ -85,7 +93,6 @@ Stage.prototype._pressMoveHandler = function (e) {
         return;
     }
 
-
     var actualTileIndex = Math.floor(e.stageX / this._gridSize) + Math.floor(e.stageY / this._gridSize) * this._xTileCount;
     if (actualTileIndex === this._drawing.previousTileIndex) {
         return;
@@ -97,6 +104,10 @@ Stage.prototype._pressMoveHandler = function (e) {
                 left: e.stageX,
                 top: e.stageY
             });
+            break;
+
+        case Stage.TOOL.RUBBER:
+            this.removeChild(actualTileIndex);
             break;
     }
 
@@ -131,6 +142,10 @@ Stage.prototype.addChild = function ($image, positionRelativeToCanvas) {
             this.snapObjectToGrid(child);
             break;
     }
+};
+
+Stage.prototype.removeChild = function (tileIndex) {
+    this._getActiveLayerObject().removeChild(tileIndex);
 };
 
 Stage.prototype.snapObjectToGrid = function (object) {
