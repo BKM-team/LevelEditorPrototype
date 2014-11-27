@@ -1,12 +1,13 @@
 'use strict';
 
 var TileLayer = function (name, layerElementsCount) {
-    var NO_ASSET_GID = 0;
-
     this.__base.constructor.call(this, name);
+    var emptyChild;
+
     for(var i = 0; i < layerElementsCount; i++) {
-        this._elements.push(NO_ASSET_GID);
-        this._spritesContainer.addChild(new createjs.DisplayObject());
+        emptyChild = new TileElement();
+        this._elements.push(emptyChild);
+        this._spritesContainer.addChild(emptyChild.getSprite());
     }
 };
 
@@ -24,7 +25,7 @@ TileLayer.prototype.addChild = function (child, tileIndex) {
 };
 
 TileLayer.prototype.toJSON = function () {
-    return jQuery.extend(this.__base.prototype.toJSON.call(this), {
+    return jQuery.extend(this.__base.toJSON.call(this), {
         type: "tilelayer",
         data: this._elements.map(function (element) {
             return element.toJSON();

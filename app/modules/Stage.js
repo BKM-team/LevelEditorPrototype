@@ -24,6 +24,14 @@ var Stage = function (stageElement, xTileCount, yTileCount, gridSize) {
     this._activeLayer = 0;
     this._container.addChildAt(this._layersContainer, Stage._LAYER_CONTAINER_INDEX_ON_CONTAINER);
 
+    this._stage.on('mousedown', this._mouseDownHandler, this);
+    this._stage.on('pressmove', this._pressMoveHandler, this);
+    this._stage.on('pressup', this._mouseUpHandler, this);
+    this._drawing = {
+        previousTileIndex: null,
+        image: null
+    };
+
     this._activeTool = Stage._DEFAULT_ACTIVE_TOOL;
 };
 
@@ -58,21 +66,57 @@ Stage._yTileCountGetSet = {
     }
 };
 
+Stage.prototype._mouseDownHandler = function () {
+    this._drawing.previousTileIndex = null;
+    this._stage.cursor = 'pointer';
+};
+
+Stage.prototype._mouseUpHandler = function () {
+    this._stage.cursor = null;
+};
+
+Stage.prototype._pressMoveHandler = function (e) {
+    //TODO: PERFORMANCE! In Chrome it works fine but for some reasons there are some delays in other browsers
+    if (this._getActiveLayerObject().getLayerType() !== Layer.TILE_LAYER) {
+        return;
+    }
+
+    if (this._drawing.image === null) {
+        return;
+    }
+
+
+    var actualTileIndex = Math.floor(e.stageX / this._gridSize) + Math.floor(e.stageY / this._gridSize) * this._xTileCount;
+    if (actualTileIndex === this._drawing.previousTileIndex) {
+        return;
+    }
+
+    switch (this._activeTool) {
+        case Stage.TOOL.BRUSH:
+            this.addChild(this._drawing.image, {
+                left: e.stageX,
+                top: e.stageY
+            });
+            break;
+    }
+
+    this._drawing.previousTileIndex = actualTileIndex;
+};
+
 Stage.prototype.addChild = function ($image, positionRelativeToCanvas) {
     var activeLayer = this._getActiveLayerObject(),
         child;
 
-    switch(activeLayer.getLayerType()) {
+    switch (activeLayer.getLayerType()) {
         case Layer.TILE_LAYER:
             child = new TileElement($image);
 
-            child.x = positionRelativeToCanvas.left;
-            child.y = positionRelativeToCanvas.top;
-            this.snapObjectToGrid(child);
-
-            var spriteColumn = child.x / this._gridSize;
-            var spriteRow = child.y / this._gridSize;
+            var spriteColumn = Math.floor(positionRelativeToCanvas.left / this._gridSize);
+            var spriteRow = Math.floor(positionRelativeToCanvas.top / this._gridSize);
             var tileIndex = spriteColumn + spriteRow * this._width / this._gridSize;
+
+            child.x = spriteColumn * this._gridSize;
+            child.y = spriteRow * this._gridSize;
 
             activeLayer.addChild(child, tileIndex);
             break;
@@ -176,7 +220,7 @@ Stage.prototype._tickHandler = function () {
 Stage.prototype.addLayer = function (name, type) {
     var newLayer;
 
-    switch(type) {
+    switch (type) {
         case Layer.TILE_LAYER:
             newLayer = new TileLayer(name, this._xTileCount * this._yTileCount);
             break;
@@ -199,7 +243,7 @@ Stage.prototype.getLayersList = function () {
             isFirst: index === 0,
             isLast: index === this._layers.length - 1,
             type: layer.getLayerType()
-        } ;
+        };
     }, this);
 };
 
@@ -217,14 +261,14 @@ Stage.prototype.changeLayerVisibility = function (index, visibility) {
 };
 
 Stage.prototype.deleteLayer = function (index) {
-    if(this._layers.length === 1) {
+    if (this._layers.length === 1) {
         return;
     }
 
     this._layersContainer.removeChildAt(index);
     this._layers.splice(index, 1);
 
-    if(index === this._activeLayer) {
+    if (index === this._activeLayer) {
         this._activeLayer = 0;
     } else if (index < this._activeLayer) {
         this._activeLayer -= 1;
@@ -233,7 +277,7 @@ Stage.prototype.deleteLayer = function (index) {
 
 Stage.prototype.moveLayerUp = function (index) {
     this._swapLayers(index, index - 1);
-    if(this._activeLayer === index) {
+    if (this._activeLayer === index) {
         this._activeLayer = index - 1;
     } else if (this._activeLayer === index - 1) {
         this._activeLayer = index;
@@ -242,7 +286,7 @@ Stage.prototype.moveLayerUp = function (index) {
 
 Stage.prototype.moveLayerDown = function (index) {
     this._swapLayers(index, index + 1);
-    if(this._activeLayer === index) {
+    if (this._activeLayer === index) {
         this._activeLayer = index + 1;
     } else if (this._activeLayer === index + 1) {
         this._activeLayer = index;
@@ -290,4 +334,8 @@ Stage.prototype.setActiveTool = function (tool) {
 
 Stage.prototype.getActiveTool = function () {
     return this._activeTool;
+};
+
+Stage.prototype.setImageForDrawing = function ($image) {
+    this._drawing.image = $image;
 };

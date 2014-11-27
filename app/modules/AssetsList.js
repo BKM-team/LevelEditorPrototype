@@ -26,8 +26,6 @@ AssetsList.prototype.toHTML = function () {
         return $collection.append(tileset.toHTML());
     }, $('<ul />'));
 
-    AssetsList._installEventsOnAssetsListElement($ul);
-
     return $ul;
 };
 
