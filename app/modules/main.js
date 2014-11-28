@@ -257,6 +257,17 @@ $(document).ready(function () {
         Editor.stage.setActiveTool(parseInt($(this).val(), 10));
     });
 
+    $('#save_player_button').click(function () {
+        var form = $('#player_sprite_form')[0];
+        var formData = new FormData(form);
+
+        var xhr = new XMLHttpRequest();
+
+        xhr.open('POST', 'http://localhost:3000/assets/player', true);
+        xhr.onload = function(e) { };
+        xhr.send(formData);
+    });
+
     Editor.layers.updateLayersList();
     createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
     createjs.Ticker.setFPS(60);
