@@ -56,6 +56,12 @@ Layer.prototype.addChild = function (child) {
     this._spritesContainer.addChild(child.getSprite());
 };
 
+Layer.prototype.removeChild = function (child) {
+    var childIndex = this._elements.indexOf(child);
+    this._elements.splice(childIndex, 1);
+    this._spritesContainer.removeChild(child.getSprite());
+};
+
 Layer.prototype.toJSON = function () {
     return {
         name: this.getName(),

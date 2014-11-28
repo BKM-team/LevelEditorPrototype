@@ -10,7 +10,9 @@ var ObjectElement = function ($image, parentStage) {
     this._sprite.cursor = 'pointer';
     this._dragging = {};
 
-    this._contextMenu = ObjectElement._contextMenu;
+    this._properties = {};
+
+    this._contextMenu = ObjectElement._CONTEXT_MENU;
 };
 
 ObjectElement.prototype = Object.create(TileElement.prototype);
@@ -19,6 +21,20 @@ ObjectElement.prototype.__base = TileElement.prototype;
 
 ObjectElement._NORMAL_ALPHA_LEVEL = 1;
 ObjectElement._DRAGGED_ITEM_ALPHA_LEVEL = 0.5;
+ObjectElement._CONTEXT_MENU = [
+    {
+        title: 'Properties...',
+        action: function () {
+            this._parentStage.showPropertiesEditor(this);
+        }
+    },
+    {
+        title: 'Delete',
+        action: function () {
+            this._parentStage.removeChild(this);
+        }
+    }
+];
 
 ObjectElement._mouseDownHandler = function (evt) {
     var LEFT_BUTTON = 0,
@@ -48,6 +64,7 @@ ObjectElement._mouseDownLeftButtonHandler = function (evt) {
 ObjectElement._mouseDownRightButtonHandler = function (evt) {
     evt.preventDefault();
     evt.stopPropagation();
+    this._parentStage.showContextMenu(this, this._contextMenu, evt);
 };
 
 ObjectElement._mouseMoveHandler = function (evt) {
@@ -86,9 +103,21 @@ ObjectElement.prototype.toJSON = function () {
         y: this.y,
         //TODO: support customizing objects at least to below properties
         name: '',
-        properties: {},
+        properties: this._properties,
         type: '',
         visible: true,
         rotation: 0
     }
+};
+
+ObjectElement.prototype.setProperty = function (name, value) {
+    this._properties[name] = value;
+};
+
+ObjectElement.prototype.getProperty = function (name) {
+    return this._properties[name];
+};
+
+ObjectElement.prototype.getProperties = function () {
+    return this._properties;
 };

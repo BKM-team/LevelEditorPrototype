@@ -124,6 +124,45 @@ var Editor = {
             this._changeActiveLayer(index);
         }
     },
+    elementProperties: {
+        _element: null,
+        showPropertyModal: function (editorElement) {
+            this._element = editorElement;
+            var $ul = this._getPropertiesList();
+
+            $('.edit-properties-dialog').find('div').empty().append($ul);
+            $('.edit-properties-dialog').dialog('open');
+        },
+        refresh: function () {
+            var $ul = this._getPropertiesList();
+            $('.edit-properties-dialog').find('div').empty().append($ul);
+        },
+        _getPropertiesList: function () {
+            var $ul = $('<ul />');
+            $.each(this._element.getProperties(), function (name, value) {
+                var $li = $('<li />' , {
+                    //FUCK THIS SHIT
+                    html: name + ': <input type="text" name="' + name + '" value="' + value +'">'
+                });
+
+                $ul.append($li);
+            });
+
+            return $ul;
+        },
+        addNewProperty: function (propertyName, propertyValue) {
+            this._element.setProperty(propertyName, propertyValue);
+        },
+        saveProperties: function ($form) {
+            var that = this;
+            $form.find('input').each(function (index, input) {
+                var $input = $(input);
+                var propertyName = $input.attr('name');
+                var propertyValue = $input.val();
+                that._element.setProperty(propertyName, propertyValue);
+            });
+        }
+    },
     canvas: null,
     stage: null,
     serialization: {
@@ -173,6 +212,43 @@ $(document).ready(function () {
                 Editor.layers.addNewLayer(layerName, layerType);
                 $this.find('form').get(0).reset();
                 $this.dialog('close');
+            }
+        }
+    });
+
+    $('.edit-properties-dialog').dialog({
+        autoOpen: false,
+        modal: true,
+        draggable: false,
+        buttons: {
+            'Save': function () {
+                var $this = $(this);
+                Editor.elementProperties.saveProperties($this.find('form').eq(0));
+                $this.find('form').get(0).reset();
+                $this.dialog('close');
+            },
+            'Add new': function () {
+                var $this = $(this);
+                $this.dialog('close');
+                $('.add-property-dialog').dialog('open');
+            }
+        }
+    });
+
+    $('.add-property-dialog').dialog({
+        autoOpen: false,
+        modal: true,
+        draggable: false,
+        buttons: {
+            'Add': function () {
+                var $this = $(this);
+                var newPropertyName = $this.find('input[name="name"]').val();
+                var newPropertyVal = $this.find('input[name="value"]').val();
+                Editor.elementProperties.addNewProperty(newPropertyName, newPropertyVal);
+                $this.find('form').get(0).reset();
+                $this.dialog('close');
+                $('.edit-properties-dialog').dialog('open');
+                Editor.elementProperties.refresh();
             }
         }
     });

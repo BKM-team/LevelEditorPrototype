@@ -18,6 +18,8 @@ var Stage = function (stageElement, xTileCount, yTileCount, gridSize) {
     this.setSize(xTileCount, yTileCount);
     this.drawGrid(this._width, this._height);
 
+    this._contextMenu = new ContextMenu();
+
     this._layers = [];
     this._layersContainer = new createjs.Container();
     this.addLayer(Stage._DEFAULT_BACKGROUND_LAYER.NAME, Stage._DEFAULT_BACKGROUND_LAYER.TYPE);
@@ -144,8 +146,8 @@ Stage.prototype.addChild = function ($image, positionRelativeToCanvas) {
     }
 };
 
-Stage.prototype.removeChild = function (tileIndex) {
-    this._getActiveLayerObject().removeChild(tileIndex);
+Stage.prototype.removeChild = function (arg) {
+    this._getActiveLayerObject().removeChild(arg);
 };
 
 Stage.prototype.snapObjectToGrid = function (object) {
@@ -353,4 +355,17 @@ Stage.prototype.getActiveTool = function () {
 
 Stage.prototype.setImageForDrawing = function ($image) {
     this._drawing.image = $image;
+};
+
+Stage.prototype.showContextMenu = function (editorElement, menuItems, mouseDownEvent) {
+    var position = {
+        top: mouseDownEvent.stageY,
+        left: mouseDownEvent.stageX
+    };
+
+    this._contextMenu.show(editorElement, menuItems, position);
+};
+
+Stage.prototype.showPropertiesEditor = function (editorElement) {
+    Editor.elementProperties.showPropertyModal(editorElement);
 };
