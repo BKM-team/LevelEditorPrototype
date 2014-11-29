@@ -75,6 +75,23 @@ var Editor = {
         _changeActiveLayer: function (index) {
             Editor.stage.setActiveLayer(index);
             this.updateLayersList();
+
+            var $assets = $('ul:eq(0)').children();
+
+            switch (Editor.stage._getActiveLayerObject().getLayerType()) {
+                case Layer.TILE_LAYER:
+                    $assets.draggable('disable');
+                    $assets.on('click', function () {
+                        var $img = $(this).find('img');
+                        Editor.stage.setImageForDrawing($img);
+                    });
+                    break;
+
+                case Layer.OBJECT_LAYER:
+                    $assets.off('click');
+                    $assets.draggable('enable');
+                    break;
+            }
         },
         _changeLayerVisibility: function ($input, index) {
             var isVisible = $input.prop('checked');
@@ -104,8 +121,7 @@ var Editor = {
             this.updateLayersList();
         },
         setActiveLayer: function (index) {
-            Editor.stage.setActiveLayer(index);
-            this.updateLayersList();
+            this._changeActiveLayer(index);
         }
     },
     canvas: null,
@@ -121,8 +137,20 @@ var Editor = {
 };
 
 $(document).ready(function () {
-    Editor.assetsList.loadAssets('super_mario').then(function (assetsList) {
+    Editor.assetsList.loadAssets('Platformer_In_The_Forest').then(function (assetsList) {
         $('.left-panel').append(assetsList);
+        assetsList.children().draggable({
+            helper: function () {
+                return $(this).find('img').clone();
+            },
+            cursorAt: {
+                top: 10,
+                left: 10
+            },
+            appendTo: 'body',
+            scroll: false
+        });
+        Editor.layers.setActiveLayer(0);
     });
 
     var canvas = new Canvas($('#main-canvas'), 40, 16, 32);

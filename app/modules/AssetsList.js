@@ -26,8 +26,6 @@ AssetsList.prototype.toHTML = function () {
         return $collection.append(tileset.toHTML());
     }, $('<ul />'));
 
-    AssetsList._installEventsOnAssetsListElement($ul);
-
     return $ul;
 };
 
@@ -41,7 +39,7 @@ AssetsList.prototype.toJSON = function () {
     });
 };
 
-AssetsList._installEventsOnAssetsListElement = function ($ul) {
+AssetsList._installDraggableEvents = function ($ul) {
     $ul.children().draggable({
         helper: function () {
             return $(this).find('img').clone();

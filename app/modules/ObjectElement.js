@@ -9,8 +9,6 @@ var ObjectElement = function ($image, parentStage) {
     this._sprite.on('pressmove', ObjectElement._mouseMoveHandler, this);
     this._sprite.cursor = 'pointer';
     this._dragging = {};
-
-    this._contextMenu = ObjectElement._contextMenu;
 };
 
 ObjectElement.prototype = Object.create(TileElement.prototype);
@@ -70,10 +68,6 @@ ObjectElement._mouseUpHandler = function () {
 
 ObjectElement.prototype.getSprite = function () {
     return this._sprite;
-};
-
-ObjectElement.prototype.getFrameId = function () {
-    return this._frameId;
 };
 
 ObjectElement.prototype.toJSON = function () {

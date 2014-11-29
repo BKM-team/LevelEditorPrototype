@@ -1,11 +1,19 @@
 'use strict';
 
 var TileElement = function ($image) {
+    if(!$image) {
+        return TileElement._EmptyTile.call(this);
+    }
     this._frameId = parseInt($image.attr('data-frame-id'), 10);
     this._sprite = new createjs.Bitmap($image.get(0));
 
     Object.defineProperty(this, 'x', TileElement._xGetSet);
     Object.defineProperty(this, 'y', TileElement._yGetSet);
+};
+
+TileElement._EmptyTile = function () {
+    this._frameId = 0;
+    this._sprite = new createjs.DisplayObject();
 };
 
 TileElement._xGetSet = {
