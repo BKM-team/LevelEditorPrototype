@@ -41,10 +41,11 @@
             Layers:
             <ul class="layers-list"></ul>
         </div>
-        <button class="add-new-layer">Add new layer</button><br /><br />
-        Tool:<br />
-        <input type="radio" name="tool" value="0" checked="checked">Brush<br />
-        <input type="radio" name="tool" value="1">Rubber<br />
+        <button class="add-new-layer">Add new layer</button>
+        <br/><br/>
+        Tool:<br/>
+        <input type="radio" name="tool" value="0" checked="checked">Brush<br/>
+        <input type="radio" name="tool" value="1">Rubber<br/>
     </div>
 </div>
 <div class="dialog add-layer-dialog">
@@ -56,6 +57,24 @@
             <option value="0">Tile layer</option>
             <option value="1">Object layer</option>
         </select>
+    </form>
+</div>
+<div class="dialog edit-properties-dialog">
+    <form class="edit-properties">
+        <div class="edit-properties-label">Edit properties:</div>
+        <div class="edit-properties-property-list">
+            <ul></ul>
+        </div>
+        <button type="button" class="edit-properties-add-new-property">Add property...</button>
+        <button type="button" class="edit-properties-save-properties">Save</button>
+    </form>
+    <form class="add-new-property">
+        <div class="add-new-property-label">Add new property:</div>
+        <label>Name:</label>
+        <input type="text" name="name"/>
+        <label>Value:</label>
+        <input type="text" name="value"/>
+        <button type="button" class="add-new-property-save-property">Save</button>
     </form>
 </div>
 </body>

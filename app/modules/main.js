@@ -34,7 +34,7 @@ var Editor = {
             $label.on('click', this._changeActiveLayer.bind(this, index));
             $li.append($label);
 
-            if(!(layer.isFirst && layer.isLast)) {
+            if (!(layer.isFirst && layer.isLast)) {
                 var $delete = $('<span />', {
                     html: '(x)'
                 });
@@ -42,7 +42,7 @@ var Editor = {
                 $li.append($delete);
             }
 
-            if(!layer.isFirst) {
+            if (!layer.isFirst) {
                 var $moveUp = $('<span />', {
                     html: '\u25B2'
                 });
@@ -50,7 +50,7 @@ var Editor = {
                 $li.append($moveUp);
             }
 
-            if(!layer.isLast) {
+            if (!layer.isLast) {
                 var $moveDown = $('<span />', {
                     html: '\u25BC'
                 });
@@ -59,7 +59,7 @@ var Editor = {
             }
 
             var $layerType = $('<span />');
-            switch(layer.type) {
+            switch (layer.type) {
                 case Layer.TILE_LAYER:
                     $layerType.text(' (tile)');
                     break;
@@ -133,6 +133,93 @@ var Editor = {
 
             return serializedStage;
         }
+    },
+    elementProperties: {
+        editProperties: function (properties) {
+            return new Promise((function (resolve, reject) {
+                var $dialog = $('.edit-properties-dialog');
+                var that = this;
+
+                $dialog.find('.add-new-property').hide();
+                this._renderProperties(properties);
+
+                $dialog.find('.ui-dialog-titlebar-close').on('click', function () {
+                    reject();
+                });
+
+                $dialog.find('.edit-properties-save-properties').one('click', function () {
+                    resolve(that._serializeForm());
+                });
+
+                $dialog.find('.edit-properties-add-new-property').one('click', function () {
+                    that._addNewProperty();
+                });
+
+                $dialog.find('.edit-properties-save-properties').one('click', function () {
+                   $dialog.dialog('close');
+                });
+
+                $dialog.dialog('open');
+            }).bind(this));
+        },
+        _addNewProperty: function () {
+            var that = this;
+
+            var $dialog = $('.edit-properties-dialog');
+            $dialog.find('.edit-properties').hide();
+            $dialog.find('.add-new-property').show();
+
+            $dialog.find('.add-new-property-save-property').one('click', function () {
+                var propertyName = $dialog.find('.add-new-property input[name="name"]').val();
+                var propertyValue = $dialog.find('.add-new-property input[name="value"]').val();
+
+                var $li = $('<li />');
+                var $label = $('<label />', {
+                    html: propertyName + ': '
+                });
+
+                var $input = $('<input />', {
+                    type: 'text',
+                    name: propertyName,
+                    value: propertyValue
+                });
+
+                $li.append($label, $input).appendTo($('.edit-properties-property-list ul'));
+                $dialog.find('.edit-properties').show();
+                $dialog.find('.add-new-property').hide().get(0).reset();
+                $dialog.find('.edit-properties-add-new-property').one('click', function () {
+                    that._addNewProperty();
+                });
+            });
+        },
+        _renderProperties: function (properties) {
+            var $ul = $('.edit-properties-property-list ul');
+            $ul.empty();
+
+            $.each(properties, function (propertyName, propertyValue) {
+                var $li = $('<li />');
+                var $label = $('<label />', {
+                    html: propertyName + ': '
+                });
+
+                var $input = $('<input />', {
+                    type: 'text',
+                    name: propertyName,
+                    value: propertyValue
+                });
+
+                $li.append($label, $input).appendTo($ul);
+            });
+        },
+        _serializeForm: function () {
+            return $('.edit-properties-dialog li')
+                .toArray()
+                .reduce(function (properties, li) {
+                    var $input = $(li).find('input');
+                    properties[$input.attr('name')] = $input.val();
+                    return properties;
+                }, {});
+        }
     }
 };
 
@@ -175,6 +262,12 @@ $(document).ready(function () {
                 $this.dialog('close');
             }
         }
+    });
+
+    $('.edit-properties-dialog').dialog({
+        autoOpen: false,
+        modal: true,
+        draggable: false
     });
 
     $('input[name="tool"]').on('change', function () {

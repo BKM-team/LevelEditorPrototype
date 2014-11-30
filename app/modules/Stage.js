@@ -35,7 +35,7 @@ var Stage = function (stageElement, xTileCount, yTileCount, gridSize) {
 
 Stage._DEFAULT_BACKGROUND_LAYER = {
     NAME: 'background',
-    TYPE: Layer.TILE_LAYER
+    TYPE: Layer.OBJECT_LAYER
 };
 Stage._BACKGROUND_INDEX_ON_CONTAINER = 0;
 Stage._LAYER_CONTAINER_INDEX_ON_CONTAINER = 1;
@@ -371,3 +371,12 @@ Stage.prototype.showContextMenu = function (editorElement, menuItems, mouseDownE
 
     this._contextMenu.show(editorElement, menuItems, position);
 };
+
+Stage.prototype.editObjectProperties = function (object) {
+    Editor.elementProperties.
+        editProperties(object.getProperties())
+        .then(function (properties) {
+            object.setProperties(properties);
+        });
+};
+
