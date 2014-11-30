@@ -374,9 +374,11 @@ Stage.prototype.showContextMenu = function (editorElement, menuItems, mouseDownE
 
 Stage.prototype.editObjectProperties = function (object) {
     Editor.elementProperties.
-        editProperties(object.getProperties())
-        .then(function (properties) {
-            object.setProperties(properties);
+        editProperties(object.getName(), object.getType(), object.getProperties())
+        .then(function (editResults) {
+            object.setName(editResults.name);
+            object.setType(editResults.type);
+            object.setProperties(editResults.properties);
         });
 };
 

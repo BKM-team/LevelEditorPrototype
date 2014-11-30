@@ -135,12 +135,17 @@ var Editor = {
         }
     },
     elementProperties: {
-        editProperties: function (properties) {
+        editProperties: function (name, type, properties) {
             return new Promise((function (resolve, reject) {
                 var $dialog = $('.edit-properties-dialog');
+                var $nameInput = $dialog.find('input[name="name"]');
+                var $typeInput = $dialog.find('input[name="type"]');
                 var that = this;
 
                 $dialog.find('.add-new-property').hide();
+                $nameInput.val(name);
+                $typeInput.val(type);
+
                 this._renderProperties(properties);
 
                 $dialog.find('.ui-dialog-titlebar-close').on('click', function () {
@@ -148,7 +153,11 @@ var Editor = {
                 });
 
                 $dialog.find('.edit-properties-save-properties').one('click', function () {
-                    resolve(that._serializeForm());
+                    resolve({
+                        name: $nameInput.val(),
+                        type: $typeInput.val(),
+                        properties: that._serializeForm()
+                    });
                 });
 
                 $dialog.find('.edit-properties-add-new-property').one('click', function () {

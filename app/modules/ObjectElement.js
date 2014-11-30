@@ -3,9 +3,9 @@
 var ObjectElement = function ($image, parentStage) {
     this.__base.constructor.call(this, $image);
     this._parentStage = parentStage;
-    this._properties = {
-
-    };
+    this._properties = {};
+    this._name = '';
+    this._type = '';
 
     this._addHitArea();
 
@@ -111,12 +111,28 @@ ObjectElement.prototype.toJSON = function () {
         x: this.x,
         y: this.y,
         //TODO: support customizing objects at least to below properties
-        name: '',
+        name: this.getName(),
         properties: this.getProperties(),
-        type: '',
+        type: this.getType(),
         visible: true,
         rotation: 0
     }
+};
+
+ObjectElement.prototype.getName = function () {
+    return this._name;
+};
+
+ObjectElement.prototype.setName = function (name) {
+    this._name = name;
+};
+
+ObjectElement.prototype.getType = function () {
+    return this._type;
+};
+
+ObjectElement.prototype.setType = function (type) {
+    this._type = type;
 };
 
 ObjectElement.prototype.getProperties = function () {
