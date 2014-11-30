@@ -10,7 +10,6 @@ var Canvas = function ($canvas, stageXTilesCount, stageYTilesCount, gridSize) {
     this._$canvas.attr('width', stageXTilesCount * gridSize);
     this._$canvas.attr('height', stageYTilesCount * gridSize);
 
-    this._contextMenu = new ContextMenu();
     this.stage = new Stage(this._$canvas.get(0), stageXTilesCount, stageYTilesCount, gridSize);
 
     this._$canvas.droppable({
@@ -22,17 +21,6 @@ var Canvas = function ($canvas, stageXTilesCount, stageYTilesCount, gridSize) {
         }
     });
 };
-
-
-//Canvas.prototype.showContextMenu = function (editorElement, menuItems, mouseDownEvent) {
-//    var canvasOffset = this._$canvas.offset();
-//    var position = {
-//        top: mouseDownEvent.stageY + canvasOffset.top,
-//        left: mouseDownEvent.stageX + canvasOffset.left
-//    };
-//
-//    this._contextMenu.show(editorElement, menuItems, position);
-//};
 
 Canvas.prototype._dropHandler = function (event, ui) {
     var position = ui.helper.posRelativeTo(this._$canvas);

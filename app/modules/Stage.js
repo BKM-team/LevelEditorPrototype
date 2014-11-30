@@ -29,6 +29,8 @@ var Stage = function (stageElement, xTileCount, yTileCount, gridSize) {
     this._stage.on('pressup', this._mouseUpHandler, this);
 
     this._activeTool = Stage._DEFAULT_ACTIVE_TOOL;
+
+    this._contextMenu = new ContextMenu();
 };
 
 Stage._DEFAULT_BACKGROUND_LAYER = {
@@ -149,8 +151,8 @@ Stage.prototype._addNewObjectChild = function (child, positionRelativeToCanvas) 
     this.snapObjectToGrid(child);
 };
 
-Stage.prototype.removeChild = function (arg) {
-    this._getActiveLayerObject().removeChild(arg);
+Stage.prototype.removeChild = function (child) {
+    this._getActiveLayerObject().removeChild(child);
 };
 
 Stage.prototype.snapObjectToGrid = function (object) {
@@ -359,5 +361,24 @@ Stage.prototype.getActiveTool = function () {
 Stage.prototype.setImageForDrawing = function ($image) {
     var activeLayer = this._getActiveLayerObject();
     activeLayer.setDrawingImage($image);
+};
+
+Stage.prototype.showContextMenu = function (editorElement, menuItems, mouseDownEvent) {
+    var position = {
+        top: mouseDownEvent.stageY,
+        left: mouseDownEvent.stageX
+    };
+
+    this._contextMenu.show(editorElement, menuItems, position);
+};
+
+Stage.prototype.editObjectProperties = function (object) {
+    Editor.elementProperties.
+        editProperties(object.getName(), object.getType(), object.getProperties())
+        .then(function (editResults) {
+            object.setName(editResults.name);
+            object.setType(editResults.type);
+            object.setProperties(editResults.properties);
+        });
 };
 

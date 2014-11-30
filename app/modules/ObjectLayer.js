@@ -11,6 +11,12 @@ Object.defineProperty(ObjectLayer.prototype, '_type', {
     value: Layer.OBJECT_LAYER
 });
 
+ObjectLayer.prototype.removeChild = function (child) {
+    var childIndex = this._elements.indexOf(child);
+    this._elements.splice(childIndex, 1);
+    this._spritesContainer.removeChild(child.getSprite());
+};
+
 ObjectLayer.prototype.toJSON = function () {
     return jQuery.extend(this.__base.toJSON.call(this), {
         type: "objectgroup",
