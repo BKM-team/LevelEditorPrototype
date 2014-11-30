@@ -1,47 +1,156 @@
 'use strict';
 
-var Stage = function (stageElement) {
+var Stage = function (stageElement, xTileCount, yTileCount, gridSize) {
     this._stage = new createjs.Stage(stageElement);
     this._stage.enableMouseOver(10);
     createjs.Ticker.on('tick', this._tickHandler, this);
 
-    this._gridSize = Stage._GRID_SIZE;
+    this._gridSize = gridSize;
+
+    Object.defineProperties(this, {
+        _xTileCount: Stage._xTileCountGetSet,
+        _yTileCount: Stage._yTileCountGetSet
+    });
 
     this._container = new createjs.Container();
     this._stage.addChild(this._container);
 
-    var backgroundPlaceholder = new createjs.Shape();
-    this._container.addChildAt(backgroundPlaceholder, Stage._BACKGROUND_INDEX);
+    this.setSize(xTileCount, yTileCount);
+    this.drawGrid(this._width, this._height);
 
     this._layers = [];
     this._layersContainer = new createjs.Container();
-    this._layersContainer.x = 0;
-    this._layersContainer.y = 0;
-    this.addLayer(Stage._DEFAULT_BACKGROUND_LAYER_NAME);
+    this.addLayer(Stage._DEFAULT_BACKGROUND_LAYER.NAME, Stage._DEFAULT_BACKGROUND_LAYER.TYPE);
     this._activeLayer = 0;
-    this._container.addChildAt(this._layersContainer, Stage._LAYER_CONTAINER_INDEX);
+    this._container.addChildAt(this._layersContainer, Stage._LAYER_CONTAINER_INDEX_ON_CONTAINER);
 
     this._stage.on('mousedown', this._mouseDownHandler, this);
+    this._stage.on('pressmove', this._pressMoveHandler, this);
     this._stage.on('pressup', this._mouseUpHandler, this);
-    this._stage.on('pressmove', this._mouseMoveHandler, this);
-    this._dragging = {};
+
+    this._activeTool = Stage._DEFAULT_ACTIVE_TOOL;
 };
 
-//TODO: someday allow user to change the grid size again
-Stage._GRID_SIZE = 32;
-Stage._DEFAULT_BACKGROUND_LAYER_NAME = 'background';
-Stage._BACKGROUND_INDEX = 0;
-Stage._LAYER_CONTAINER_INDEX = 1;
-Stage._GRID_INDEX = 2;
+Stage._DEFAULT_BACKGROUND_LAYER = {
+    NAME: 'background',
+    TYPE: Layer.TILE_LAYER
+};
+Stage._BACKGROUND_INDEX_ON_CONTAINER = 0;
+Stage._LAYER_CONTAINER_INDEX_ON_CONTAINER = 1;
+Stage._GRID_INDEX_ON_STAGE = 1;
+Stage.TOOL = {
+    BRUSH: 0,
+    RUBBER: 1
+};
+Stage._DEFAULT_ACTIVE_TOOL = Stage.TOOL.BRUSH;
 
-Stage.prototype.addChild = function (child, positionRelativeToCanvas) {
-    var sprite = child.getSprite();
-    sprite.x = positionRelativeToCanvas.left - this._container.x;
-    sprite.y = positionRelativeToCanvas.top - this._container.y;
+Stage._xTileCountGetSet = {
+    get: function () {
+        return this._width / this._gridSize;
+    },
+    set: function (xTileCount) {
+        this._width = xTileCount * this._gridSize;
+    }
+};
 
-    this.snapObjectToGrid(sprite);
+Stage._yTileCountGetSet = {
+    get: function () {
+        return this._height / this._gridSize;
+    },
+    set: function (yTileCount) {
+        this._height = yTileCount * this._gridSize;
+    }
+};
 
-    this._layers[this._activeLayer].addChild(child);
+Stage.prototype._mouseDownHandler = function () {
+    var activeLayerObject = this._getActiveLayerObject();
+
+    if (activeLayerObject.getLayerType() !== Layer.TILE_LAYER) {
+        return;
+    }
+
+    activeLayerObject.setDrawingPreviousTileIndex(null);
+    this._stage.cursor = 'pointer';
+};
+
+Stage.prototype._mouseUpHandler = function () {
+    if (this._getActiveLayerObject().getLayerType() !== Layer.TILE_LAYER) {
+        return;
+    }
+
+    this._stage.cursor = null;
+};
+
+Stage.prototype._pressMoveHandler = function (e) {
+    //TODO: PERFORMANCE! In Chrome it works fine but for some reasons there are some delays in other browsers
+    var activeLayer = this._getActiveLayerObject();
+
+    if (activeLayer.getLayerType() !== Layer.TILE_LAYER) {
+        return;
+    }
+
+    if (activeLayer.getDrawingImage() === null) {
+        return;
+    }
+
+    var actualTileIndex = Math.floor(e.stageX / this._gridSize) + Math.floor(e.stageY / this._gridSize) * this._xTileCount;
+    if (actualTileIndex === activeLayer.getDrawingPreviousTileIndex()) {
+        return;
+    }
+
+    switch (this._activeTool) {
+        case Stage.TOOL.BRUSH:
+            this.addChild(activeLayer.getDrawingImage(), {
+                left: e.stageX,
+                top: e.stageY
+            });
+            break;
+
+        case Stage.TOOL.RUBBER:
+            this.removeChild(actualTileIndex);
+            break;
+    }
+
+    activeLayer.setDrawingPreviousTileIndex(actualTileIndex);
+};
+
+Stage.prototype.addChild = function ($image, positionRelativeToCanvas) {
+    var child;
+
+    switch (this._getActiveLayerObject().getLayerType()) {
+        case Layer.TILE_LAYER:
+            child = new TileElement($image);
+            this._addNewTileChild(child, positionRelativeToCanvas);
+            break;
+
+        case Layer.OBJECT_LAYER:
+            child = new ObjectElement($image, this);
+            this._addNewObjectChild(child, positionRelativeToCanvas);
+            break;
+    }
+};
+
+Stage.prototype._addNewTileChild = function (child, positionRelativeToCanvas) {
+    var spriteColumn = Math.floor(positionRelativeToCanvas.left / this._gridSize);
+    var spriteRow = Math.floor(positionRelativeToCanvas.top / this._gridSize);
+    var tileIndex = spriteColumn + spriteRow * this._width / this._gridSize;
+
+    child.x = spriteColumn * this._gridSize;
+    child.y = spriteRow * this._gridSize;
+
+    this._getActiveLayerObject().addChild(child, tileIndex);
+};
+
+Stage.prototype._addNewObjectChild = function (child, positionRelativeToCanvas) {
+    child.x = positionRelativeToCanvas.left;
+    child.y = positionRelativeToCanvas.top;
+
+    this._getActiveLayerObject().addChild(child);
+    this.snapObjectToGrid(child);
+};
+
+Stage.prototype.removeChild = function (arg) {
+    this._getActiveLayerObject().removeChild(arg);
 };
 
 Stage.prototype.snapObjectToGrid = function (object) {
@@ -60,9 +169,9 @@ Stage.prototype.snapObjectToGrid = function (object) {
     }
 };
 
-Stage.prototype.setSize = function (xTilesCount, yTilesCount) {
-    this._width = xTilesCount * this._gridSize;
-    this._height = yTilesCount * this._gridSize;
+Stage.prototype.setSize = function (xTileCount, yTileCount) {
+    this._xTileCount = xTileCount;
+    this._yTileCount = yTileCount;
 
     var bg = this._createBackground();
     this._updateBackgroundShape(bg);
@@ -75,13 +184,13 @@ Stage.prototype.getGridSize = function () {
 };
 
 Stage.prototype._updateBackgroundShape = function (newBackground) {
-    this._container.removeChildAt(0);
-    this._container.addChildAt(newBackground, 0);
+    this._container.removeChildAt(Stage._BACKGROUND_INDEX_ON_CONTAINER);
+    this._container.addChildAt(newBackground, Stage._BACKGROUND_INDEX_ON_CONTAINER);
 };
 
 Stage.prototype._updateGrid = function (newGrid) {
-    this._stage.removeChildAt(1);
-    this._stage.addChildAt(newGrid, 1);
+    this._stage.removeChildAt(Stage._GRID_INDEX_ON_STAGE);
+    this._stage.addChildAt(newGrid, Stage._GRID_INDEX_ON_STAGE);
 };
 
 Stage.prototype._createBackground = function () {
@@ -124,41 +233,25 @@ Stage.prototype.drawGrid = function (width, height) {
     this._updateGrid(grid);
 };
 
-Stage.prototype._mouseDownHandler = function (evt) {
-    this._dragging.isElementDragged = true;
-    this._dragging.startPosition = {
-        x: this._container.x - evt.stageX,
-        y: this._container.y - evt.stageY
-    };
-    this._stage.cursor = 'move';
-};
-
-Stage.prototype._mouseMoveHandler = function (evt) {
-    if (this._dragging.isElementDragged) {
-        this._container.x = evt.stageX + this._dragging.startPosition.x;
-        this._container.y = evt.stageY + this._dragging.startPosition.y;
-        this.snapToGrid();
-    }
-};
-
-Stage.prototype._mouseUpHandler = function () {
-    if (this._dragging.isElementDragged) {
-        this._dragging.isElementDragged = false;
-        this._stage.cursor = null;
-    }
-};
-
 Stage.prototype._tickHandler = function () {
     this._stage.update();
 };
 
-Stage.prototype.snapToGrid = function () {
-    this.snapObjectToGrid(this._container);
-};
+Stage.prototype.addLayer = function (name, type) {
+    var newLayer;
 
-Stage.prototype.addLayer = function (name) {
-    this._layers.push(new Layer(name));
-    this._layersContainer.addChild(this._layers[this._layers.length - 1].getContainer());
+    switch (type) {
+        case Layer.TILE_LAYER:
+            newLayer = new TileLayer(name, this._xTileCount * this._yTileCount);
+            break;
+
+        case Layer.OBJECT_LAYER:
+            newLayer = new ObjectLayer(name);
+            break;
+    }
+
+    this._layers.push(newLayer);
+    this._layersContainer.addChild(newLayer.getContainer());
 };
 
 Stage.prototype.getLayersList = function () {
@@ -168,13 +261,18 @@ Stage.prototype.getLayersList = function () {
             active: index === this._activeLayer,
             visible: layer.getVisibility(),
             isFirst: index === 0,
-            isLast: index === this._layers.length - 1
-        } ;
+            isLast: index === this._layers.length - 1,
+            type: layer.getLayerType()
+        };
     }, this);
 };
 
 Stage.prototype.setActiveLayer = function (index) {
     this._activeLayer = index;
+};
+
+Stage.prototype._getActiveLayerObject = function () {
+    return this._layers[this._activeLayer];
 };
 
 Stage.prototype.changeLayerVisibility = function (index, visibility) {
@@ -183,14 +281,14 @@ Stage.prototype.changeLayerVisibility = function (index, visibility) {
 };
 
 Stage.prototype.deleteLayer = function (index) {
-    if(this._layers.length === 1) {
+    if (this._layers.length === 1) {
         return;
     }
 
     this._layersContainer.removeChildAt(index);
     this._layers.splice(index, 1);
 
-    if(index === this._activeLayer) {
+    if (index === this._activeLayer) {
         this._activeLayer = 0;
     } else if (index < this._activeLayer) {
         this._activeLayer -= 1;
@@ -199,7 +297,7 @@ Stage.prototype.deleteLayer = function (index) {
 
 Stage.prototype.moveLayerUp = function (index) {
     this._swapLayers(index, index - 1);
-    if(this._activeLayer === index) {
+    if (this._activeLayer === index) {
         this._activeLayer = index - 1;
     } else if (this._activeLayer === index - 1) {
         this._activeLayer = index;
@@ -208,7 +306,7 @@ Stage.prototype.moveLayerUp = function (index) {
 
 Stage.prototype.moveLayerDown = function (index) {
     this._swapLayers(index, index + 1);
-    if(this._activeLayer === index) {
+    if (this._activeLayer === index) {
         this._activeLayer = index + 1;
     } else if (this._activeLayer === index + 1) {
         this._activeLayer = index;
@@ -225,8 +323,8 @@ Stage.prototype._swapLayers = function (l1, l2) {
 
 Stage.prototype.toJSON = function () {
     var serializedObj = {
-        width: this._width / this._gridSize,
-        height: this._height / this._gridSize,
+        width: this._xTileCount,
+        height: this._yTileCount,
         tileheight: this._gridSize,
         tilewidth: this._gridSize,
         layers: this._layers.map(function (layer) {
@@ -249,3 +347,17 @@ Stage.prototype.toJSON = function () {
 
     return serializedObj;
 };
+
+Stage.prototype.setActiveTool = function (tool) {
+    this._activeTool = tool;
+};
+
+Stage.prototype.getActiveTool = function () {
+    return this._activeTool;
+};
+
+Stage.prototype.setImageForDrawing = function ($image) {
+    var activeLayer = this._getActiveLayerObject();
+    activeLayer.setDrawingImage($image);
+};
+

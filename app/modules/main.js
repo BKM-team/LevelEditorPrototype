@@ -58,11 +58,40 @@ var Editor = {
                 $li.append($moveDown);
             }
 
+            var $layerType = $('<span />');
+            switch(layer.type) {
+                case Layer.TILE_LAYER:
+                    $layerType.text(' (tile)');
+                    break;
+
+                case Layer.OBJECT_LAYER:
+                    $layerType.text(' (object)');
+                    break;
+            }
+            $li.append($layerType);
+
             $ul.append($li);
         },
         _changeActiveLayer: function (index) {
             Editor.stage.setActiveLayer(index);
             this.updateLayersList();
+
+            var $assets = $('ul:eq(0)').children();
+
+            switch (Editor.stage._getActiveLayerObject().getLayerType()) {
+                case Layer.TILE_LAYER:
+                    $assets.draggable('disable');
+                    $assets.on('click', function () {
+                        var $img = $(this).find('img');
+                        Editor.stage.setImageForDrawing($img);
+                    });
+                    break;
+
+                case Layer.OBJECT_LAYER:
+                    $assets.off('click');
+                    $assets.draggable('enable');
+                    break;
+            }
         },
         _changeLayerVisibility: function ($input, index) {
             var isVisible = $input.prop('checked');
@@ -87,13 +116,12 @@ var Editor = {
             var layers = Editor.stage.getLayersList();
             layers.forEach(this._appendNewLayer.bind(this, $ul));
         },
-        addNewLayer: function (name) {
-            Editor.stage.addLayer(name);
+        addNewLayer: function (name, type) {
+            Editor.stage.addLayer(name, type);
             this.updateLayersList();
         },
         setActiveLayer: function (index) {
-            Editor.stage.setActiveLayer(index);
-            this.updateLayersList();
+            this._changeActiveLayer(index);
         }
     },
     canvas: null,
@@ -111,22 +139,49 @@ var Editor = {
 $(document).ready(function () {
     Editor.assetsList.loadAssets('Platformer_In_The_Forest').then(function (assetsList) {
         $('.left-panel').append(assetsList);
+        assetsList.children().draggable({
+            helper: function () {
+                return $(this).find('img').clone();
+            },
+            cursorAt: {
+                top: 10,
+                left: 10
+            },
+            appendTo: 'body',
+            scroll: false
+        });
+        Editor.layers.setActiveLayer(0);
     });
 
-    var canvas = new Canvas($('#main-canvas'));
+    var canvas = new Canvas($('#main-canvas'), 40, 16, 32);
     Editor.canvas = canvas;
     Editor.stage = canvas.stage;
 
-    Editor.canvas.setSizeToParent();
-    Editor.stage.setSize(20, 20);
-
     $('.add-new-layer').on('click', function () {
-        var layerName = prompt('Type new layer name:');
-        Editor.layers.addNewLayer(layerName);
+        $('.add-layer-dialog').dialog('open');
+    });
+
+    $('.add-layer-dialog').dialog({
+        autoOpen: false,
+        modal: true,
+        draggable: false,
+        buttons: {
+            'Add': function () {
+                var $this = $(this);
+                var layerName = $this.find('input').val();
+                var layerType = parseInt($this.find('select').val(), 10);
+                Editor.layers.addNewLayer(layerName, layerType);
+                $this.find('form').get(0).reset();
+                $this.dialog('close');
+            }
+        }
+    });
+
+    $('input[name="tool"]').on('change', function () {
+        Editor.stage.setActiveTool(parseInt($(this).val(), 10));
     });
 
     Editor.layers.updateLayersList();
-
     createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
     createjs.Ticker.setFPS(60);
 });

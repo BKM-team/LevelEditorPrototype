@@ -1,6 +1,9 @@
 'use strict';
 
 var Tileset = function (tilesetImageFile, tilesetImage, tilesetMeta) {
+    if(!tilesetMeta) {
+        tilesetMeta = Tileset._generateMeta(tilesetImage);
+    }
     this._imageFile = tilesetImageFile;
     this._assets = tilesetMeta.assets;
     this._tileSize = tilesetMeta.size;
@@ -25,8 +28,14 @@ Tileset.create = function (tilesetPath) {
             });
     });
 
-    return Promise.join(imageLoadPromise, $.ajax(tilesetMetaFile).promise(), function (tilesetImage, tilesetMeta) {
-        return new Tileset(tilesetImageFile, tilesetImage, tilesetMeta);
+    return new Promise(function(resolve) {
+        imageLoadPromise.then(function (tilesetImage) {
+            $.ajax(tilesetMetaFile).then(function (tilesetMeta) {
+                resolve(new Tileset(tilesetImageFile, tilesetImage, tilesetMeta));
+            }, function () {
+                resolve(new Tileset(tilesetImageFile, tilesetImage));
+            });
+        });
     });
 };
 
@@ -77,6 +86,37 @@ Tileset.prototype.getImageFile = function () {
 
 Tileset.prototype.getTileSize = function () {
     return this._tileSize;
+};
+
+Tileset._generateMeta = function (image) {
+    function guessTileSize(image) {
+        var multiplier = 2;
+        for(; multiplier <= image.width || multiplier <= image.height; multiplier *= 2) {
+            if(image.width % multiplier !== 0 || image.height & multiplier !== 0) {
+                return multiplier / 2;
+            }
+        }
+    }
+
+    var size = guessTileSize(image);
+    var assets = [];
+
+    for (var y = 0; y < image.height; y += size) {
+        for (var x = 0; x < image.width; x += size) {
+            assets.push({
+                id: y + '_' + x,
+                coords: {
+                    x: x,
+                    y: y
+                }
+            });
+        }
+    }
+
+    return {
+        assets: assets,
+        size: size
+    };
 };
 
 Tileset.prototype.toHTML = function () {
