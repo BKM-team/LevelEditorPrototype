@@ -12,6 +12,7 @@ $.fn.posRelativeTo = function (element) {
 };
 
 var Editor = {
+    SERVER_ADDR: 'http://localhost:3000/',
     assetsList: {
         _assetsList: new AssetsList(),
         loadAssets: function (tilesetName, tilesetImageData) {
@@ -365,6 +366,22 @@ $(document).ready(function () {
 
             reader.readAsDataURL(tilesetFile);
         }
+    });
+
+    $('.right-panel .export-map').on('click', function () {
+        var serializedData = Editor.serialization.export();
+        $.post(Editor.SERVER_ADDR + 'levels', serializedData);
+    });
+
+    $('.right-panel .player-sprite button').click(function () {
+        var form = $('.right-panel .player-sprite').get(0);
+        var formData = new FormData(form);
+
+        var xhr = new XMLHttpRequest();
+
+        xhr.open('POST', Editor.SERVER_ADDR + 'assets/player', true);
+        xhr.onload = function(e) { };
+        xhr.send(formData);
     });
 
     Editor.layers.updateLayersList();
