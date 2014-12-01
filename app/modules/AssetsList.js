@@ -5,50 +5,35 @@ var AssetsList = function () {
     this._lastGID = 0;
 };
 
-AssetsList._PATH = 'assets/processed/';
+AssetsList.prototype.loadAssetsFromTilesetImage = function (tilesetName, tilesetImageData) {
+    var tilesetImage = new Image();
+    tilesetImage.src = tilesetImageData;
 
-AssetsList.prototype.loadAssets = function (tilesetName) {
-    return Tileset.create(AssetsList._PATH + tilesetName)
-        .then((function (tileset) {
-            tileset._assetsListMeta = {
-                name: tilesetName,
-                firstGID: this._lastGID + 1
-            };
+    var tileset = new Tileset(tilesetImage);
+    this._tilesets.push({
+        name: tilesetName,
+        firstGID: this._lastGID + 1,
+        tilesetData: tileset
+    });
 
-            this._tilesets.push(tileset);
-            this._lastGID += tileset.getLength();
-            return this.toHTML();
-        }).bind(this));
+    this._lastGID += tileset.getLength();
 };
 
-AssetsList.prototype.toHTML = function () {
-    var $ul = this._tilesets.reduce(function ($collection, tileset) {
-        return $collection.append(tileset.toHTML());
-    }, $('<ul />'));
-
-    return $ul;
+AssetsList.prototype.getTilesets = function () {
+    return this._tilesets.map(function (tileset) {
+        return {
+            name: tileset.name,
+            tilesetImages: tileset.tilesetData.getTilesetImagesData()
+        };
+    });
 };
 
 AssetsList.prototype.toJSON = function () {
     return this._tilesets.map(function (tileset) {
-        var serializedTileset = tileset.toJSON();
-        serializedTileset.firstgid = tileset._assetsListMeta.firstGID;
-        serializedTileset.name = tileset._assetsListMeta.name;
+        var serializedTileset = tileset.tilesetData.toJSON();
+        serializedTileset.firstgid = tileset.firstGID;
+        serializedTileset.name = tileset.name;
 
         return serializedTileset;
-    });
-};
-
-AssetsList._installDraggableEvents = function ($ul) {
-    $ul.children().draggable({
-        helper: function () {
-            return $(this).find('img').clone();
-        },
-        cursorAt: {
-            top: 10,
-            left: 10
-        },
-        appendTo: 'body',
-        scroll: false
     });
 };
