@@ -110,7 +110,6 @@ ObjectElement.prototype.toJSON = function () {
         height: spriteBounds.height,
         x: this.x,
         y: this.y,
-        //TODO: support customizing objects at least to below properties
         name: this.getName(),
         properties: this.getProperties(),
         type: this.getType(),
