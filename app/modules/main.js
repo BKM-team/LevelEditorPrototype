@@ -12,7 +12,66 @@ $.fn.posRelativeTo = function (element) {
 };
 
 var Editor = {
-    assetsList: new AssetsList(),
+    assetsList: {
+        _assetsList: new AssetsList(),
+        loadAssets: function (tilesetName, tilesetImageData) {
+            this._assetsList.loadAssetsFromTilesetImage(tilesetName, tilesetImageData);
+            this._refreshAssetList();
+
+            var $assets = $('.left-panel li.item');
+            $assets.draggable({
+                helper: function () {
+                    return $(this).find('img').clone();
+                },
+                cursorAt: {
+                    top: 10,
+                    left: 10
+                },
+                appendTo: 'body',
+                scroll: false
+            });
+
+            switch (Editor.layers.getActiveLayerType()) {
+                case Layer.TILE_LAYER:
+                    $assets.draggable('disable');
+                    $assets.on('click', function () {
+                        var $img = $(this).find('img');
+                        Editor.stage.setImageForDrawing($img);
+                    });
+                    break;
+
+                case Layer.OBJECT_LAYER:
+                    $assets.off('click');
+                    $assets.draggable('enable');
+                    break;
+            }
+        },
+        _refreshAssetList: function () {
+            $('.left-panel ul').remove();
+            var $ul = this._assetsList.getTilesets().reduce(function ($ul, tileset) {
+                var $li = $('<li />');
+                var $childUl = tileset.tilesetImages.reduce(function ($ul, asset) {
+                    var $frame = $(asset.image);
+                    $frame.attr('data-frame-id', asset.frameId);
+
+                    var $li = $('<li />', {
+                        'class': 'item',
+                        html: $frame
+                    });
+
+                    return $ul.append($li);
+                }, $('<ul />'));
+
+                $li.append($childUl);
+                return $ul.append($li);
+            }, $('<ul />'));
+
+            $('.left-panel').append($ul);
+        },
+        toJSON: function () {
+            return this._assetsList.toJSON();
+        }
+    },
     layers: {
         _appendNewLayer: function ($ul, layer, index) {
             var $input = $('<input />', {
@@ -76,9 +135,9 @@ var Editor = {
             Editor.stage.setActiveLayer(index);
             this.updateLayersList();
 
-            var $assets = $('ul:eq(0)').children();
+            var $assets = $('.left-panel li.item');
 
-            switch (Editor.stage._getActiveLayerObject().getLayerType()) {
+            switch (this.getActiveLayerType()) {
                 case Layer.TILE_LAYER:
                     $assets.draggable('disable');
                     $assets.on('click', function () {
@@ -122,6 +181,9 @@ var Editor = {
         },
         setActiveLayer: function (index) {
             this._changeActiveLayer(index);
+        },
+        getActiveLayerType: function () {
+            return Editor.stage._getActiveLayerObject().getLayerType();
         }
     },
     canvas: null,
@@ -233,22 +295,6 @@ var Editor = {
 };
 
 $(document).ready(function () {
-    Editor.assetsList.loadAssets('Platformer_In_The_Forest').then(function (assetsList) {
-        $('.left-panel').append(assetsList);
-        assetsList.children().draggable({
-            helper: function () {
-                return $(this).find('img').clone();
-            },
-            cursorAt: {
-                top: 10,
-                left: 10
-            },
-            appendTo: 'body',
-            scroll: false
-        });
-        Editor.layers.setActiveLayer(0);
-    });
-
     var canvas = new Canvas($('#main-canvas'), 40, 16, 32);
     Editor.canvas = canvas;
     Editor.stage = canvas.stage;
