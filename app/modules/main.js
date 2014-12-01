@@ -283,6 +283,44 @@ $(document).ready(function () {
         Editor.stage.setActiveTool(parseInt($(this).val(), 10));
     });
 
+    $('.add-tileset-dialog').dialog({
+        autoOpen: false,
+        modal: true,
+        draggable: false
+    });
+
+    $('.add-new-tileset').on('click', function () {
+        $('.add-tileset-dialog').dialog('open');
+    });
+
+    $('.add-tileset input[name="tileset"]').on('change', function () {
+        var tilesetFile = this.files[0];
+        if(tilesetFile) {
+            $('.add-tileset input[name="name"]').val(tilesetFile.name.split('.')[0]);
+        }
+    });
+
+    $('.add-tileset-save-new-tileset').on('click', function () {
+        var $dialog = $('.add-tileset-dialog');
+        var tilesetFile = $dialog.find('input[name="tileset"]').get(0).files[0];
+        var tilesetName = $dialog.find('input[name="name"]').val();
+
+        if(!tilesetFile) {
+            $dialog.dialog('close');
+        } else {
+            var reader = new FileReader();
+            reader.addEventListener('load', function () {
+                //TODO: allow only image files
+                var imageData = reader.result;
+                Editor.assetsList.loadAssets(tilesetName, imageData);
+                $dialog.find('form').get(0).reset();
+                $dialog.dialog('close');
+            });
+
+            reader.readAsDataURL(tilesetFile);
+        }
+    });
+
     Editor.layers.updateLayersList();
     createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
     createjs.Ticker.setFPS(60);
