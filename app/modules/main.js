@@ -373,6 +373,17 @@ $(document).ready(function () {
         $.post(Editor.SERVER_ADDR + 'levels', serializedData);
     });
 
+    $('.right-panel .player-sprite button').click(function () {
+        var form = $('.right-panel .player-sprite').get(0);
+        var formData = new FormData(form);
+
+        var xhr = new XMLHttpRequest();
+
+        xhr.open('POST', Editor.SERVER_ADDR + 'assets/player', true);
+        xhr.onload = function(e) { };
+        xhr.send(formData);
+    });
+
     Editor.layers.updateLayersList();
     createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
     createjs.Ticker.setFPS(60);
