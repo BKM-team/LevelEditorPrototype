@@ -12,6 +12,7 @@ $.fn.posRelativeTo = function (element) {
 };
 
 var Editor = {
+    SERVER_ADDR: 'http://localhost:3000/',
     assetsList: {
         _assetsList: new AssetsList(),
         loadAssets: function (tilesetName, tilesetImageData) {
@@ -365,6 +366,11 @@ $(document).ready(function () {
 
             reader.readAsDataURL(tilesetFile);
         }
+    });
+
+    $('.right-panel .export-map').on('click', function () {
+        var serializedData = Editor.serialization.export();
+        $.post(Editor.SERVER_ADDR + 'levels', serializedData);
     });
 
     Editor.layers.updateLayersList();
