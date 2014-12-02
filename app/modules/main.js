@@ -13,6 +13,13 @@ $.fn.posRelativeTo = function (element) {
 
 var Editor = {
     SERVER_ADDR: 'http://localhost:3000/',
+    init: function (xTilesCount, yTilesCount, gridSize) {
+        var canvas = new Canvas($('#main-canvas'), xTilesCount, yTilesCount, gridSize);
+
+        this.canvas = canvas;
+        this.stage = canvas.stage;
+        this.layers.updateLayersList();
+    },
     assetsList: {
         _assetsList: new AssetsList(),
         loadAssets: function (tilesetName, tilesetImageData) {
@@ -296,9 +303,36 @@ var Editor = {
 };
 
 $(document).ready(function () {
-    var canvas = new Canvas($('#main-canvas'), 40, 16, 32);
-    Editor.canvas = canvas;
-    Editor.stage = canvas.stage;
+    $('.set-map-size-dialog').dialog({
+        autoOpen: true,
+        modal: true,
+        draggable: false
+    });
+
+    $('.set-map-size-dialog-set-size').on('click', function () {
+        var dialog = $('.set-map-size-dialog');
+        function isInt(x) {
+            return x === (x|0);
+        }
+
+        var xTilesCount = Number(dialog.find('input[name="x-tiles-count"]').val());
+        var yTilesCount = Number(dialog.find('input[name="y-tiles-count"]').val());
+
+        if(!isInt(xTilesCount) || xTilesCount <= 0 || !isInt(yTilesCount) || yTilesCount <= 0) {
+            dialog.find('.error').show();
+            return;
+        }
+
+        dialog.find('.loading').show();
+        setTimeout(function () {
+            Editor.init(xTilesCount, yTilesCount, 32);
+            dialog.dialog('close');
+        }, 0);
+    });
+
+    $('.set-map-size-dialog input').on('focus', function () {
+        $('.set-map-size-dialog .error').hide();
+    });
 
     $('.add-new-layer').on('click', function () {
         $('.add-layer-dialog').dialog('open');
@@ -384,7 +418,6 @@ $(document).ready(function () {
         xhr.send(formData);
     });
 
-    Editor.layers.updateLayersList();
     createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
     createjs.Ticker.setFPS(60);
 });

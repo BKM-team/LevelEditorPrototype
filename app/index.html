@@ -101,5 +101,15 @@
         <button type="button" class="add-tileset-save-new-tileset">Save</button>
     </form>
 </div>
+<div class="dialog set-map-size-dialog">
+    <form class="set-map-size">
+        <label>Choose map size [tiles]:</label><br />
+        <div class="error">Both values have to be integers greater than 0</div>
+        <span>W: </span><input type="number" min="1" value="" name="x-tiles-count"/><span> H: </span><input min="1" type="number" name="y-tiles-count"/>
+        <div>Tile size: 32px</div>
+        <button type="button" class="set-map-size-dialog-set-size">OK</button>
+        <div class="loading">Loading...</div>
+    </form>
+</div>
 </body>
 </html>

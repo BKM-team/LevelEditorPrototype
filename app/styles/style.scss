@@ -118,4 +118,19 @@ img.drag-helper {
 
 .dialog {
     display: none;
+
+    &.set-map-size-dialog {
+        input {
+            width: 60px;
+        }
+
+        .error {
+            display: none;
+            color: red;
+        }
+
+        .loading {
+            display: none;
+        }
+    }
 }
