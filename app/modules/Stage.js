@@ -364,9 +364,10 @@ Stage.prototype.setImageForDrawing = function ($image) {
 };
 
 Stage.prototype.showContextMenu = function (editorElement, menuItems, mouseDownEvent) {
+    var canvasOffset = $(this._stage.canvas).posRelativeTo($('body'));
     var position = {
-        top: mouseDownEvent.stageY,
-        left: mouseDownEvent.stageX
+        top: mouseDownEvent.stageY + canvasOffset.top,
+        left: mouseDownEvent.stageX + canvasOffset.left
     };
 
     this._contextMenu.show(editorElement, menuItems, position);

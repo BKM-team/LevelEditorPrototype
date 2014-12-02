@@ -1,4 +1,51 @@
-html, body {
+@import url("fonts/resagnicto/fontface.css");
+@import url("fonts/jaapokki/fontface.css");
+@import url("fonts/archivo/fontface.css");
+@import url("../bower_components/bootstrap/dist/css/bootstrap.min.css");
+
+.base-0 {
+    background-color: #181a1a;
+}
+
+.base-1 {
+    background-color: #282b2b;
+}
+
+.base-2 {
+    background-color: #343838;
+}
+
+.base-3 {
+    background-color: #404545;
+}
+
+.base-4 {
+    background-color: #778080;
+}
+
+.base-5 {
+    background-color: #9aa6a6;
+}
+
+.highlight-1 {
+    background-color: #005f6b;
+}
+
+.highlight-2 {
+    background-color: #008c9e;
+}
+
+.highlight-3 {
+    background-color: #39cfe4;
+}
+
+.fill-w {
+    min-width: 100%;
+    width: 100%;
+}
+
+.fill-h {
+    min-height: 100%;
     height: 100%;
 }
 
@@ -7,42 +54,121 @@ html, body {
     width: $width;
 }
 
+@media(min-width: 0px) {
+    div[class^="col"] {
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+}
+
 body {
+    @extend .fill-w;
+    @extend .fill-h;
     min-width: 522px;
+    @extend .base-0;
+    position: absolute;
+}
+
+.material {
+    box-shadow: 0px 5px 7px 2px rgba(0, 0, 0, 0.22);
+}
+
+.container-fluid {
+    @extend .fill-h;
+    padding: 0px;
+    font-family: archivo_narrow;
+}
+
+.container-row {
+    @extend .fill-h;
+    @extend .fill-w;
+    margin: 0px;
+    padding: 0px;
+}
+
+.btn {
+    font-size: large;
+    font-weight: bold;
+}
+
+.title-bar {
+    @extend .material;
+    @extend .base-3;
+    z-index: 100;
+    min-height: 32px;
+    min-width: 100px;
+    overflow: hidden;
+    position: fixed;
+    padding: 10px;
+    margin-bottom: 10px;
+
+    color: #39cfe4; /*highlight-3*/
+    font-weight: bold;
+    font-size: large;
+}
+
+.panel {
+    @extend .material;
+    @extend .base-2;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    padding: 0px;
+    height: inherit;
+    padding-top: 50px;
+}
+
+.panel-container {
+    @extend .fill-h;
+    margin: 0px;
+    padding: 0px;
+}
+
+.left-container {
+    @extend .panel-container;
 }
 
 .left-panel {
-    border-right: 1px solid black;
-    box-sizing: border-box;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    @include size(96px, 100%);
-    margin-left: -100%;
-    right: 96px;
+    @extend .panel;
+
+    color: #008c9e; /*highlight-2*/
 
     li {
         cursor: pointer;
-        line-height: 64px;
+
         text-align: center;
         user-select: none;
         -webkit-user-select: none;
-
         &.item {
+            @extend .material;
             font-size: 0px;
-
+            min-height: 64px;
+            min-width: 64px;
             img {
                 vertical-align: middle;
             }
 
             &:hover {
-                background-color: rgba(0, 0, 128, 0.3);
+                @extend .base-5;
+                transform: scale(1.02);
             }
-
-            @include size(100%, 64px);
+            &:active {
+                @extend .highlight-3;
+                transform: scale(1.15);
+            }
         }
 
         &.category {
-
+            ul {
+                line-height: 64px;
+            }
+            ul li {
+                list-style: none;
+                display: inline-block;
+                @extend .base-4;
+                /*margin: 0px 2px 0px 2px;*/
+                margin: 4px;
+                padding: 2px;
+            }
         }
     }
 
@@ -55,7 +181,7 @@ body {
         @include size(64px, 64px);
 
         &:hover {
-            background-color: lightgray;
+            @extend .base-5;
         }
     }
 
@@ -73,28 +199,46 @@ img.drag-helper {
 }
 
 .middle-panel {
-    background-color: #888;
-    overflow: hidden;
-    @include size(100%, 100%);
+    @extend .material;
+
+    @extend .fill-h;
+    overflow: auto;
 
     .canvas-wrapper {
-        overflow: scroll;
-        @include size(100%, 100%);
+        @extend .base-1;
+        @extend .material;
     }
 }
 
-.right-panel {
-    border-left: 1px solid #000;
-    overflow: hidden;
-    box-sizing: border-box;
-    margin-right: -100%;
-    @include size(330px, 100%);
+.right-container {
+    @extend .panel-container;
+    padding-right: 0px;
+}
 
+.right-panel {
+    @extend .panel;
+    padding-left: 10px;
+
+    .layers-list {
+        margin: 10px 0px 10px 0px;
+    }
     .layers-list li {
+        @extend .base-4;
+        @extend .material;
         cursor: pointer;
+        margin: 5px 0px 5px 25px;
+        padding: 10px 15px 10px 15px;
+        &.hover {
+            @extend .base-5;
+        }
         &.active {
-            color: red;
+            /*color: red;*/
             font-weight: bold;
+            @extend .highlight-3;
+            margin-left: 10px;
+        }
+        checkbox {
+            float: right;
         }
     }
 }
@@ -103,7 +247,6 @@ img.drag-helper {
     padding-left: 96px;
     padding-right: 330px;
     height: 100%;
-
     .column {
         position: relative;
         float: left;

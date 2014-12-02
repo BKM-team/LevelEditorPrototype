@@ -6,6 +6,7 @@
         "jquery-ui": "~1.11.2",
         "ui-contextmenu": "~1.7.0",
         "easeljs": "*",
-        "bluebird": "~2.3.11"
+        "bluebird": "~2.3.11",
+        "bootstrap": "~3.3.1"
     }
 }

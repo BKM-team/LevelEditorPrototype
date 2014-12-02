@@ -57,7 +57,9 @@ var Editor = {
         _refreshAssetList: function () {
             $('.left-panel ul').remove();
             var $ul = this._assetsList.getTilesets().reduce(function ($ul, tileset) {
-                var $li = $('<li />');
+                var $li = $('<li />', {
+                    'class': 'category'
+                });
                 var $childUl = tileset.tilesetImages.reduce(function ($ul, asset) {
                     var $frame = $(asset.image);
                     $frame.attr('data-frame-id', asset.frameId);
