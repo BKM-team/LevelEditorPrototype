@@ -114,7 +114,8 @@ ObjectElement.prototype.toJSON = function () {
         properties: this.getProperties(),
         type: this.getType(),
         visible: true,
-        rotation: 0
+        rotation: 0,
+        _sprite: this._sprite
     }
 };
 

@@ -206,6 +206,31 @@ var Editor = {
             var serializedStage = Editor.stage.toJSON();
             serializedStage.tilesets = Editor.assetsList.toJSON();
 
+            function convertImgToBase64(image){
+                var canvas = document.createElement('CANVAS'),
+                    ctx = canvas.getContext('2d');
+
+                canvas.height = image.height;
+                canvas.width = image.width;
+                ctx.drawImage(image, 0, 0);
+                return canvas.toDataURL();
+            }
+
+            var objects = {};
+            serializedStage.layers.forEach(function (layer) {
+                if(layer.type !== 'objectgroup') {
+                    return;
+                }
+
+                layer.objects.forEach(function (obj) {
+                    var image = obj._sprite.image;
+                    objects[obj.name] = convertImgToBase64(image);
+                    delete obj._sprite;
+                });
+
+            });
+
+            serializedStage._objects = objects;
             return serializedStage;
         }
     },
@@ -409,7 +434,9 @@ $(document).ready(function () {
 
     $('.right-panel .export-map').on('click', function () {
         var serializedData = Editor.serialization.export();
-        $.post(Editor.SERVER_ADDR + 'levels', serializedData);
+        $.post(Editor.SERVER_ADDR + 'levels', {
+            data: serializedData
+        });
     });
 
     $('.right-panel .player-sprite button').click(function () {
