@@ -452,4 +452,8 @@ $(document).ready(function () {
 
     createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
     createjs.Ticker.setFPS(60);
+
+    $('form').on('submit', function (e) {
+        e.preventDefault();
+    })
 });
