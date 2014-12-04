@@ -1,0 +1,22 @@
+/* from http://www.flaticon.com/free-icon/rubbish-bin-delete-button_60761
+Icon made by Google, taken from www.flaticon.com and is licensed under Creative Commons BY 3.0"
+*/
+
+@mixin svg-button-delete($color) {
+    min-width:   20px;
+    min-height:  20px;
+    max-width:  200px;
+    max-height: 200px;
+    
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' style='pointer-events: none; display: block;'><g id='delete'><path d='M6,19c0,1.1,0.9,2,2,2h8c1.1,0,2-0.9,2-2V7H6V19z M19,4h-3.5l-1-1h-5l-1,1H5v2h14V4z'></path></g></svg>");
+
+    /*background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgc3R5bGU9J3BvaW50ZXItZXZlbnRzOiBub25lOyBkaXNwbGF5OiBibG9jazsnPjxnIGlkPSdkZWxldGUnPjxwYXRoIGZpbGw9I3skY29sb3J9IGQ9J002LDE5YzAsMS4xLDAuOSwyLDIsMmg4YzEuMSwwLDItMC45LDItMlY3SDZWMTl6IE0xOSw0aC0zLjVsLTEtMWgtNWwtMSwxSDV2MmgxNFY0eic+PC9wYXRoPjwvZz48L3N2Zz4=);*/
+}
+/*
+.button-delete {
+    min-width:   20px;
+    min-height:  20px;
+    max-width:  200px;
+    max-height: 200px;
+    background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgc3R5bGU9J3BvaW50ZXItZXZlbnRzOiBub25lOyBkaXNwbGF5OiBibG9jazsnPjxnIGlkPSdkZWxldGUnPjxwYXRoIGZpbGw9I3skY29sb3J9IGQ9J002LDE5YzAsMS4xLDAuOSwyLDIsMmg4YzEuMSwwLDItMC45LDItMlY3SDZWMTl6IE0xOSw0aC0zLjVsLTEtMWgtNWwtMSwxSDV2MmgxNFY0eic+PC9wYXRoPjwvZz48L3N2Zz4=);
+}*/

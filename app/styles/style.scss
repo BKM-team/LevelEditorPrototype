@@ -1,49 +1,12 @@
-@import url("fonts/resagnicto/fontface.css");
-@import url("fonts/jaapokki/fontface.css");
-@import url("fonts/archivo/fontface.css");
-@import url("../bower_components/bootstrap/dist/css/bootstrap.min.css");
-
-.base-0 {
-    background-color: #181a1a;
-}
-
-.base-1 {
-    background-color: #282b2b;
-}
-
-.base-2 {
-    background-color: #343838;
-}
-
-.base-3 {
-    background-color: #404545;
-}
-
-.base-4 {
-    background-color: #778080;
-}
-
-.base-5 {
-    background-color: #9aa6a6;
-}
-
-.highlight-1 {
-    background-color: #005f6b;
-}
-
-.highlight-2 {
-    background-color: #008c9e;
-}
-
-.highlight-3 {
-    background-color: #39cfe4;
-}
+@import '../bower_components/bootstrap/dist/css/bootstrap.min.css';
+@import 'fonts/archivo/fontface.css';
+@import 'buttons.scss';
+@import 'colours.scss';
 
 .fill-w {
     min-width: 100%;
     width: 100%;
 }
-
 .fill-h {
     min-height: 100%;
     height: 100%;
@@ -65,7 +28,7 @@ body {
     @extend .fill-w;
     @extend .fill-h;
     min-width: 522px;
-    @extend .base-0;
+    @extend .base-0-bg;
     position: absolute;
 }
 
@@ -93,28 +56,29 @@ body {
 
 .title-bar {
     @extend .material;
-    @extend .base-3;
+    @extend .base-3-bg;
+    @extend .highlight-3;
     z-index: 100;
+    position: fixed;
     min-height: 32px;
     min-width: 100px;
-    overflow: hidden;
-    position: fixed;
+    width: inherit;
     padding: 10px;
-    margin-bottom: 10px;
+    overflow: hidden;
 
-    color: #39cfe4; /*highlight-3*/
     font-weight: bold;
     font-size: large;
 }
 
 .panel {
     @extend .material;
-    @extend .base-2;
-    overflow-y: scroll;
+    @extend .base-2-bg;
+    @extend .highlight-2;
+    @extend .fill-w;
+    position: absolute;
+    top: 59px;
+    bottom: 0px;
     overflow-x: hidden;
-    padding: 0px;
-    height: inherit;
-    padding-top: 50px;
 }
 
 .panel-container {
@@ -129,9 +93,6 @@ body {
 
 .left-panel {
     @extend .panel;
-
-    color: #008c9e; /*highlight-2*/
-
     li {
         cursor: pointer;
 
@@ -148,11 +109,11 @@ body {
             }
 
             &:hover {
-                @extend .base-5;
+                @extend .base-5-bg;
                 transform: scale(1.02);
             }
             &:active {
-                @extend .highlight-3;
+                @extend .highlight-3-bg;
                 transform: scale(1.15);
             }
         }
@@ -164,7 +125,7 @@ body {
             ul li {
                 list-style: none;
                 display: inline-block;
-                @extend .base-4;
+                @extend .base-4-bg;
                 /*margin: 0px 2px 0px 2px;*/
                 margin: 4px;
                 padding: 2px;
@@ -181,7 +142,7 @@ body {
         @include size(64px, 64px);
 
         &:hover {
-            @extend .base-5;
+            @extend .base-5-bg;
         }
     }
 
@@ -205,7 +166,7 @@ img.drag-helper {
     overflow: auto;
 
     .canvas-wrapper {
-        @extend .base-1;
+        @extend .base-1-bg;
         @extend .material;
     }
 }
@@ -222,24 +183,82 @@ img.drag-helper {
     .layers-list {
         margin: 10px 0px 10px 0px;
     }
-    .layers-list li {
-        @extend .base-4;
-        @extend .material;
-        cursor: pointer;
-        margin: 5px 0px 5px 25px;
-        padding: 10px 15px 10px 15px;
-        &.hover {
-            @extend .base-5;
+}
+
+.tile-layer-glyf {
+    position: relative;
+    bottom: 5px;
+    
+    max-width:  30px;
+    max-height: 30px;
+    width:  30px;
+    height: 30px;
+    svg {
+        max-width:  30px;
+        max-height: 30px;
+        width:  30px;
+        height: 30px;
+    }
+}
+.tile-layer-btn {
+    & svg:hover {
+            @extend .highlight-2-fill;
+            stroke: black;
+    }
+    & svg:active {
+            @extend .highlight-3-fill;
+            transform: scale(1.1);
+    }
+}
+.tile-layer-btn-delete {
+    @extend .tile-layer-btn;
+    float: right;
+}
+.tile-layer-btn-move-down,
+.tile-layer-btn-move-up {
+    @extend .tile-layer-btn;
+    float: left;
+}
+.tile-layer {
+    @extend .base-4-bg;
+    @extend .base-0;
+    @extend .material;
+    cursor: pointer;
+    margin: 5px 0px 5px 25px;
+    padding: 10px 5px 10px 10px;
+
+    &.active {
+        /*color: red;*/
+        font-weight: bold;
+        @extend .highlight-3-bg;
+        transform: scaleY(1.1);
+        margin: 7px;
+        margin-left: 10px;
+        margin-right: 0px;
+        & .tile-layer-btn {
         }
-        &.active {
-            /*color: red;*/
-            font-weight: bold;
-            @extend .highlight-3;
-            margin-left: 10px;
-        }
-        checkbox {
-            float: right;
-        }
+    }
+    label {
+        margin-left: 0.25em;
+    }
+    &:first-child label,
+    &:last-child label {
+        margin-left: 1em;
+    }
+    &:first-child.active {
+        margin-top: 12px;
+    }
+    &:last-child.active {
+        margin-bottom: 12px;
+    }
+    &:hover {
+        @extend .base-5-bg;
+    }
+    &.delete {
+        float: right;
+    }
+    input {
+        float: right;
     }
 }
 

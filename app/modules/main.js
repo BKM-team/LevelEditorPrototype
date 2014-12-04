@@ -92,7 +92,7 @@ var Editor = {
             $input.on('change', this._changeLayerVisibility.bind(this, $input, index));
 
             var $li = $('<li />', {
-                'class': layer.active ? 'active' : ''
+                'class': layer.active ? 'tile-layer active' : 'tile-layer'
             });
 
             $li.append($input);
@@ -105,7 +105,8 @@ var Editor = {
 
             if (!(layer.isFirst && layer.isLast)) {
                 var $delete = $('<span />', {
-                    html: '(x)'
+                    'class' : 'tile-layer-glyf tile-layer-btn-delete',
+                    html: "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g id='delete'><path d='M6,19c0,1.1,0.9,2,2,2h8c1.1,0,2-0.9,2-2V7H6V19z M19,4h-3.5l-1-1h-5l-1,1H5v2h14V4z'></path></g></svg>"
                 });
                 $delete.on('click', this._deleteLayer.bind(this, index));
                 $li.append($delete);
@@ -113,6 +114,7 @@ var Editor = {
 
             if (!layer.isFirst) {
                 var $moveUp = $('<span />', {
+                    'class': 'tile-layer-btn-move-up',
                     html: '\u25B2'
                 });
                 $moveUp.on('click', this._moveLayerUp.bind(this, index));
@@ -121,6 +123,7 @@ var Editor = {
 
             if (!layer.isLast) {
                 var $moveDown = $('<span />', {
+                    'class': 'tile-layer-btn-move-down',
                     html: '\u25BC'
                 });
                 $moveDown.on('click', this._moveLayerDown.bind(this, index));

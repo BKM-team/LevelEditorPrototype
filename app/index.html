@@ -34,29 +34,34 @@
 
 <div class="container-fluid">
     <div class="row container-row">
-        <div class="left-container col-sm-2">
-            <div class="title-bar">Tiles</div>
+        <div class="left-container col-xs-2">
+            <div class="title-bar">
+                Tiles
+                <button class="add-new-tileset btn btn-default">+</button>
+            </div>
             <div class="left-panel fill-w">
-                <button class="add-new-tileset btn btn-default">Add tileset</button>
                 <ul></ul>
             </div>
         </div>
 
-        <div class="middle-panel col-xs-8">
+        <div class="middle-panel col-sm-8">
             <canvas id="main-canvas"></canvas>
         </div>
 
-        <div class="right-container col-sm-2">
-            <div class="title-bar">Layers</div>
+        <div class="right-container col-xs-2">
+            <div class="title-bar">
+                Layers
+                <button class="add-new-layer btn btn-default">+</button>
+            </div>
             <div class="right-panel">
                 <ul class="layers-list"></ul>
-                <button class="add-new-layer btn btn-default">Add new layer</button>
+                
                 <div class="tool-select">
                 <div>Tool:</div>
                 <input type="radio" name="tool" value="0" checked="checked">Brush<br/>
                 <input type="radio" name="tool" value="1">Rubber<br/>
                 </div>
-
+                
                 <div class="player-sprite">
                     Player sprite:<br>
                     <form type="multipart/form-data" class="player-sprite">
